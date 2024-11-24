@@ -1,0 +1,198 @@
+
+@font-face {
+    font-family: 'OCR-A';
+    src: url('/fonts/ocr-a-extended.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+/* Fullscreen plot as a background */
+body {
+    margin: 0;
+    overflow: hidden; /* Prevents scrolling */
+    background-color: black;
+    /*font-family: 'OCR-A', sans-serif;*/
+    font-family: 'Space Grotesk', sans-serif;
+    color: black;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    font-size: 13px;
+}
+
+/* Plot div covering the entire viewport */
+#plotDiv {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0; /* Ensure plot is in the background */
+}
+
+/* Description div positioned on top of plot */
+#descDiv {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    width: 15%;
+    height: 90%;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    padding: 10px;
+    z-index: 1; /* Ensure it's above plotDiv */
+}
+
+/* Details div positioned on top of plot */
+#detailsDiv {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: auto;
+    height: 50%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    padding: 10px;
+    z-index: 1; /* Ensure it's above plotDiv */
+    scrollbar-color: #CCCCCC #000;
+
+}
+
+#loading {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000; /* Ensure it appears on top of other content */
+    background-image: url('/images/loading2.gif'); /* Replace with your actual gif path */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 220px 160px; /* Adjust size of gif */
+}
+
+
+/* Filter window container */
+#filterDiv {
+    position: fixed;
+    top: 30px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    color: black; /* Change text color to black */
+    padding: 20px;
+    max-width: 320px;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Slider styling */
+#filterDiv input[type="range"] {
+    width: 100%;
+    height: 8px;
+    background: black;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 10px 0;
+    border: none;
+    outline: none;
+}
+
+#filterDiv input[type="range"]::-webkit-slider-thumb,
+#filterDiv input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: black; /* Thumb color black */
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+    outline: none;
+    box-shadow: none;
+}
+
+#filterDiv input[type="range"]::-webkit-slider-thumb:hover,
+#filterDiv input[type="range"]::-moz-range-thumb:hover {
+    background: black;
+    
+}
+
+/* Dropdown select styling */
+#filterDiv select {
+    width: 100%;
+    padding: 8px;
+    /*border-radius: 5px;*/
+    background-color: #CCCCCC; /* Dropdown background color */
+    color: black; /* Text color */
+    font-size: 16px;
+    border: 1px solid black;
+    appearance: none;
+    cursor: pointer;
+}
+
+#filterDiv select:hover {
+    background-color: #bbbbbb;
+}
+
+/* Scrollbar for dropdown */
+#filterDiv select::-webkit-scrollbar {
+    width: 8px;
+}
+
+#filterDiv select::-webkit-scrollbar-track {
+    background-color: #000;
+    border-radius: 10px;
+}
+
+#filterDiv select::-webkit-scrollbar-thumb {
+    background-color: #CCCCCC; /* Scrollbar color */
+    border-radius: 10px;
+}
+
+#filterDiv select {
+    scrollbar-width: thin;
+    scrollbar-color: #CCCCCC #000; /* Scrollbar color */
+}
+
+/* Reset button styling */
+#filterDiv button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: black; /* Button background */
+    color: #CCCCCC; /* Text color */
+    border: none;
+    /*border-radius: 5px;*/
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#filterDiv button:hover {
+    background-color: #333333; /* Darker button color on hover */
+}
+
+
+/* Adjust margin of all headings and paragraphs inside these containers */
+#filterDiv h2,
+#detailsDiv h2 {
+    margin-top: 0; /* Remove top margin from headings */
+}
+
+
+#detailsDiv ul {
+    list-style-type: none; /* Remove default list styling */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+#detailsDiv li {
+    display: flex; /* Use flexbox for alignment */
+    justify-content: space-between; /* Push feature name and value to opposite ends */
+    margin-bottom: 5px; /* Optional: Add some spacing between list items */
+    font-size: 14px; /* Optional: Adjust font size */
+    color: #000; /* Optional: Text color */
+}
+
+#detailsDiv li strong {
+    margin-right: 10px; /* Add some space between the feature name and value */
+}
