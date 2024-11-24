@@ -63,8 +63,30 @@
         <button onclick="applyFilter()">Apply Filter</button>
         <button onclick="resetFilter()">Reset Filter</button>
     </div>
-
+    <div id="mobileWarning" style="display: none; text-align: center; padding: 20px; background-color: #ffcccc; color: #333; font-size: 18px;">
+        <p>Sorry, this webpage is only accessible on a desktop browser.</p>
+    </div>
+    
     <script>
+
+        function detectMobile() {
+            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                // Display the warning message
+                document.getElementById('mobileWarning').style.display = 'block';
+
+                // Optionally hide other parts of the page
+                document.getElementById('descDiv').style.display = 'none';
+                document.getElementById('filterDiv').style.display = 'none';
+                document.getElementById('detailsDiv').style.display = 'none';
+                document.getElementById('plotDiv').style.display = 'none';
+            }
+        }
+
+        // Run the function on page load
+        window.onload = detectMobile;
+
         document.getElementById('loading').style.display = 'block';
 
         const csvFilePath = 'data/exoplanets_cartesian.csv'; // Ensure this path is correct
