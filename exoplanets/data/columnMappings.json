@@ -2,11 +2,13 @@
     "loc_rowid": "Row ID",
     "pl_name": "Planet Name",
     "hostname": "Host Star Name",
+
     "sy_snum": "Number of Stars in System",
     "sy_pnum": "Number of Planets in System",
     "discoverymethod": "Discovery Method",
     "disc_year": "Discovery Year",
     "disc_facility": "Discovery Facility",
+    "sy_dist": "System Distance (parsecs)",
     "pl_controv_flag": "Controversial Flag",
     "pl_orbper": "Orbital Period (days)",
     "pl_orbpererr1": "Orbital Period Upper Error (days)",
@@ -72,9 +74,6 @@
     "ra": "Right Ascension (degrees)",
     "decstr": "Declination (D:M:S)",
     "dec": "Declination (degrees)",
-    "sy_dist": "System Distance (parsecs)",
-    "sy_disterr1": "Distance Upper Error (parsecs)",
-    "sy_disterr2": "Distance Lower Error (parsecs)",
     "sy_vmag": "Apparent Visual Magnitude",
     "sy_vmagerr1": "Visual Magnitude Upper Error",
     "sy_vmagerr2": "Visual Magnitude Lower Error",
@@ -83,5 +82,7 @@
     "sy_kmagerr2": "K-band Magnitude Lower Error",
     "sy_gaiamag": "Apparent Gaia Magnitude",
     "sy_gaiamagerr1": "Gaia Magnitude Upper Error",
-    "sy_gaiamagerr2": "Gaia Magnitude Lower Error"
+    "sy_gaiamagerr2": "Gaia Magnitude Lower Error",
+    "sy_disterr1": "Distance Upper Error (parsecs)",
+    "sy_disterr2": "Distance Lower Error (parsecs)"
 }

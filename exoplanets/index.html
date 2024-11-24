@@ -68,14 +68,16 @@
         document.getElementById('loading').style.display = 'block';
 
         const csvFilePath = 'data/exoplanets_cartesian.csv'; // Ensure this path is correct
-        const jsonFilePath = 'data/columnMappings.json'; // Path to your JSON file with mappings
+        const mappingsFilePath = 'data/columnMappings.json'; // Path to your JSON file with mappings
         let columnMappings = {}; // This will hold the loaded JSON mappings
         let originalData = []; // Store the original data for filtering
-        const excludedColumns = ["cart_x", "cart_y", "cart_z", "loc_rowid"]; // Add more column names here if needed
+        const excludedColumns = ["cart_x", "cart_y", "cart_z", "loc_rowid"]; // Excluded Columns from Filter and Details
 
         // Load JSON mappings
         async function loadColumnMappings() {
-            const response = await fetch(jsonFilePath);
+            const response = await fetch(mappingsFilePath
+    
+            );
             columnMappings = await response.json();
         }
 
@@ -93,12 +95,14 @@
             });
 
             const filterColumn = document.getElementById('filterColumn');
-            numericColumns.forEach(column => {
-                const option = document.createElement('option');
-                option.value = column;
-                option.textContent = columnMappings[column] || column;
-                filterColumn.appendChild(option);
-            });
+            Object.keys(columnMappings).forEach(key => {
+    if (numericColumns.includes(key) && !excludedColumns.includes(key)) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = columnMappings[key] || key;
+        filterColumn.appendChild(option);
+    }
+});
 
             // Add event listener for column selection
             filterColumn.addEventListener('change', function() {
@@ -118,38 +122,38 @@
                 return;
             }
 
-        // Get the values of the selected column
-        const values = rows.map(row => parseFloat(row[selectedColumn])).filter(value => !isNaN(value));
+            // Get the values of the selected column
+            const values = rows.map(row => parseFloat(row[selectedColumn])).filter(value => !isNaN(value));
 
-        if (values.length === 0) {
-            // If no numeric values are found for the selected column, reset the sliders
-            document.getElementById('minValue').value = 0;
-            document.getElementById('maxValue').value = 100;
-            document.getElementById('minValueLabel').textContent = "Min Value";
-            document.getElementById('maxValueLabel').textContent = "Max Value";
-            return;
+            if (values.length === 0) {
+                // If no numeric values are found for the selected column, reset the sliders
+                document.getElementById('minValue').value = 0;
+                document.getElementById('maxValue').value = 100;
+                document.getElementById('minValueLabel').textContent = "Min Value";
+                document.getElementById('maxValueLabel').textContent = "Max Value";
+                return;
+            }
+
+            // Calculate min and max values
+            const minValue = Math.min(...values);
+            const maxValue = Math.max(...values);
+
+            // Set the min, max, and initial values of the sliders
+            const minSlider = document.getElementById('minValue');
+            const maxSlider = document.getElementById('maxValue');
+
+            minSlider.min = minValue;
+            minSlider.max = maxValue;
+            minSlider.value = minValue;
+
+            maxSlider.min = minValue;
+            maxSlider.max = maxValue;
+            maxSlider.value = maxValue;
+
+            // Update the labels with the current min and max values
+            document.getElementById('minValueLabel').textContent = `Min Value (${minValue})`;
+            document.getElementById('maxValueLabel').textContent = `Max Value (${maxValue})`;
         }
-
-        // Calculate min and max values
-        const minValue = Math.min(...values);
-        const maxValue = Math.max(...values);
-
-        // Set the min, max, and initial values of the sliders
-        const minSlider = document.getElementById('minValue');
-        const maxSlider = document.getElementById('maxValue');
-
-        minSlider.min = minValue;
-        minSlider.max = maxValue;
-        minSlider.value = minValue;
-
-        maxSlider.min = minValue;
-        maxSlider.max = maxValue;
-        maxSlider.value = maxValue;
-
-        // Update the labels with the current min and max values
-        document.getElementById('minValueLabel').textContent = `Min Value (${minValue})`;
-        document.getElementById('maxValueLabel').textContent = `Max Value (${maxValue})`;
-    }
 
 
         // Update label dynamically as slider values change
@@ -205,9 +209,9 @@
                 z: unpack(data, 'cart_z'),
                 mode: 'markers',
                 marker: {
-                    size: 1,
+                    size: 0.5,
                     color: 'white',
-                    line: {color: 'white', width: 1, opacity: 0},
+                    line: {color: 'white', width: 1, opacity: 0.1},
                     opacity: 0.8
                 },
                 text: unpack(data, 'pl_name'), 
@@ -277,38 +281,22 @@
 
 
                         if (matchingRow) {
-    let detailsContent = '<ul style="margin: 0; padding: 0; list-style-type: none;">'; // Remove default list style
-    for (const key in matchingRow) {
-        if (!excludedColumns.includes(key)) {
-            const displayName = columnMappings[key] || key; // Use mapped name if available, fallback to key
-            const value = matchingRow[key] === "" ? "NA" : matchingRow[key]; // Replace null with "NA"
+                            let detailsContent = '<ul style="margin: 0; padding: 0; list-style-type: none;">'; // Remove default list style
+                                Object.keys(columnMappings).forEach(key => {
+    if (!excludedColumns.includes(key) && matchingRow.hasOwnProperty(key)) {
+        const displayName = columnMappings[key] || key; 
+        const value = matchingRow[key] === "" ? "NA" : matchingRow[key];
 
-            detailsContent += `
-                <li>
-                    <strong>${displayName}:</strong>
-                    <span>${value}</span>
-                </li>`;
-        }
+        detailsContent += `
+            <li>
+                <strong>${displayName}:</strong>
+                <span>${value}</span>
+            </li>`;
     }
-    detailsContent += '</ul>';
-    document.getElementById('modal-body').innerHTML = detailsContent;
-}if (matchingRow) {
-    let detailsContent = '<ul style="margin: 0; padding: 0; list-style-type: none;">'; // Remove default list style
-    for (const key in matchingRow) {
-        if (!excludedColumns.includes(key)) {
-            const displayName = columnMappings[key] || key; // Use mapped name if available, fallback to key
-            const value = matchingRow[key] === "" ? "NA" : matchingRow[key]; // Replace null with "NA"
-
-            detailsContent += `
-                <li>
-                    <strong>${displayName}:</strong>
-                    <span>${value}</span>
-                </li>`;
-        }
-    }
-    detailsContent += '</ul>';
-    document.getElementById('modal-body').innerHTML = detailsContent;
-}
+});
+                            detailsContent += '</ul>';
+                            document.getElementById('modal-body').innerHTML = detailsContent;
+                        }
                     });
                 }
             });
