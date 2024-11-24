@@ -10,7 +10,7 @@
 /* Fullscreen plot as a background */
 body {
     margin: 0;
-    overflow: hidden; /* Prevents scrolling */
+    overflow: hidden;
     background-color: black;
     /*font-family: 'OCR-A', sans-serif;*/
     font-family: 'Space Grotesk', sans-serif;
@@ -38,7 +38,7 @@ body {
     top: 20px;
     width: 15%;
     height: 90%;
-    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    background-color: rgba(255, 255, 255, 0.8); 
     padding: 10px;
     z-index: 1; /* Ensure it's above plotDiv */
 }
@@ -52,7 +52,7 @@ body {
     height: 50%;
     overflow-y: auto;
     overflow-x: hidden;
-    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+    background-color: rgba(255, 255, 255, 0.8); 
     padding: 10px;
     z-index: 1; /* Ensure it's above plotDiv */
     scrollbar-color: #CCCCCC #000;
@@ -60,17 +60,17 @@ body {
 }
 
 #loading {
-    display: none; /* Initially hidden */
+    display: none; 
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1000; /* Ensure it appears on top of other content */
-    background-image: url('/images/loading2.gif'); /* Replace with your actual gif path */
+    z-index: 1; /* Ensure it's above plotDiv */
+    background-image: url('../images/loading2.gif'); 
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 220px 160px; /* Adjust size of gif */
+    background-size: 220px 160px;
 }
 
 
@@ -79,12 +79,11 @@ body {
     position: fixed;
     top: 30px;
     right: 20px;
-    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
-    color: black; /* Change text color to black */
+    background-color: rgba(255, 255, 255, 0.8); 
+    color: black; 
     padding: 20px;
     max-width: 320px;
     z-index: 1000;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Slider styling */
@@ -104,7 +103,7 @@ body {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: black; /* Thumb color black */
+    background: black;
     cursor: pointer;
     transition: background 0.2s ease-in-out;
     outline: none;
@@ -122,9 +121,8 @@ body {
     width: 100%;
     padding: 8px;
     /*border-radius: 5px;*/
-    background-color: #CCCCCC; /* Dropdown background color */
-    color: black; /* Text color */
-    font-size: 16px;
+    background-color: #CCCCCC; 
+    color: black; 
     border: 1px solid black;
     appearance: none;
     cursor: pointer;
@@ -145,13 +143,13 @@ body {
 }
 
 #filterDiv select::-webkit-scrollbar-thumb {
-    background-color: #CCCCCC; /* Scrollbar color */
+    background-color: #CCCCCC; 
     border-radius: 10px;
 }
 
 #filterDiv select {
     scrollbar-width: thin;
-    scrollbar-color: #CCCCCC #000; /* Scrollbar color */
+    scrollbar-color: #CCCCCC #000; 
 }
 
 /* Reset button styling */
@@ -159,11 +157,10 @@ body {
     width: 100%;
     margin-top: 10px;
     padding: 10px;
-    background-color: black; /* Button background */
-    color: #CCCCCC; /* Text color */
+    background-color: black; 
+    color: #CCCCCC; 
     border: none;
     /*border-radius: 5px;*/
-    font-size: 16px;
     cursor: pointer;
 }
 
@@ -175,24 +172,22 @@ body {
 /* Adjust margin of all headings and paragraphs inside these containers */
 #filterDiv h2,
 #detailsDiv h2 {
-    margin-top: 0; /* Remove top margin from headings */
+    margin-top: 0; 
 }
 
 
 #detailsDiv ul {
-    list-style-type: none; /* Remove default list styling */
-    padding: 0; /* Remove default padding */
-    margin: 0; /* Remove default margin */
+    list-style-type: none; 
+    padding: 0; 
+    margin: 0; 
 }
 
 #detailsDiv li {
-    display: flex; /* Use flexbox for alignment */
-    justify-content: space-between; /* Push feature name and value to opposite ends */
-    margin-bottom: 5px; /* Optional: Add some spacing between list items */
-    font-size: 14px; /* Optional: Adjust font size */
-    color: #000; /* Optional: Text color */
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 5px; 
+    color: #000; 
 }
-
 #detailsDiv li strong {
-    margin-right: 10px; /* Add some space between the feature name and value */
+    margin-right: 10px; 
 }
