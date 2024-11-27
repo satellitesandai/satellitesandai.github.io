@@ -40,6 +40,9 @@ body {
     background-color: rgba(255, 255, 255, 0.8); 
     padding: 10px;
     z-index: 1; /* Ensure it's above plotDiv */
+    scrollbar-color: #CCCCCC #000;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* Details div positioned on top of plot */
@@ -87,37 +90,37 @@ body {
 
 /* Reset for the slider track */
 #filterDiv input[type="range"] {
-    -webkit-appearance: none; /* Remove WebKit default styles */
-    appearance: none; /* Remove default styles in all browsers */
+    -webkit-appearance: none; 
+    appearance: none;
     width: 100%;
     height: 8px;
-    background: black; /* Black track color */
-    border: none; /* Remove any borders */
-    outline: none; /* Remove focus outlines */
+    background: black; 
+    border: none; 
+    outline: none; 
 }
 
 /* Slider thumb styling for WebKit (Chrome, Edge) */
 #filterDiv input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none; /* Remove WebKit default thumb styling */
+    -webkit-appearance: none; 
     width: 20px;
     height: 20px;
-    border-radius: 50%; /* Ensure no rounding of the thumb */
-    background: black; /* Enforce black thumb */
-    box-shadow: none; /* Remove unwanted shadows */
+    border-radius: 50%; 
+    background: black; 
+    box-shadow: none; 
     cursor: pointer;
 }
 
 /* Hover styling */
 #filterDiv input[type="range"]::-webkit-slider-thumb:hover {
-    background: black; /* Ensure consistent hover behavior */
+    background: black; 
 }
 
 /* Slider thumb styling for Firefox */
 #filterDiv input[type="range"]::-moz-range-thumb {
     width: 20px;
     height: 20px;
-    border-radius: 50%; /* No rounding */
-    background: black; /* Black thumb */
+    border-radius: 50%;
+    background: black; 
     box-shadow: none;
     cursor: pointer;
 }
@@ -131,54 +134,74 @@ body {
 
 /* Dropdown select styling */
 #filterDiv select {
-    -webkit-appearance: none; /* Remove WebKit default styles */
-    -moz-appearance: none; /* Remove Firefox default styles */
-    appearance: none; /* Remove default styles */
-    border: 1px solid black; /* Enforce black border */
-    border-radius: 0; /* Remove rounding */
-    background-color: #CCCCCC; /* Gray background */
-    color: black; /* Black text */
-    width: 100%; /* Full width */
-    padding: 8px; /* Padding for inner content */
-    cursor: pointer; /* Ensure pointer cursor */
-    line-height: 1.5; /* Consistent line height */
+    -webkit-appearance: none; 
+    -moz-appearance: none;
+    appearance: none; 
+    border: 1px solid black;
+    border-radius: 0; 
+    background-color: #CCCCCC; 
+    color: black;
+    width: 100%; 
+    padding: 8px; 
+    cursor: pointer; 
+    line-height: 1.5;
 }
 
 /* Hover state for dropdown */
 #filterDiv select:hover {
-    background-color: #BBBBBB; /* Darker gray on hover */
+    background-color: #BBBBBB;
 }
 
 /* Focus styling */
 #filterDiv select:focus {
-    outline: 2px solid black; /* Consistent focus outline */
-    background-color: #CCCCCC; /* Retain background */
+    outline: 2px solid black; 
+    background-color: #CCCCCC; 
 }
 
 /* General Scrollbar Styling */
 #detailsDiv, #filterDiv select {
-    scrollbar-width: thin; /* Firefox: Thin scrollbar */
-    scrollbar-color: #CCCCCC #000; /* Thumb (gray) and track (black) */
+    scrollbar-width: thin; 
+    scrollbar-color: #CCCCCC #000; 
 }
 
 /* WebKit-based browsers (Chrome, Edge, Safari) */
 #detailsDiv::-webkit-scrollbar, #filterDiv select::-webkit-scrollbar {
-    width: 8px; /* Scrollbar width */
-    height: 8px; /* Horizontal scrollbar height, if applicable */
+    width: 8px; 
+    height: 8px; 
 }
 
 #detailsDiv::-webkit-scrollbar-thumb, #filterDiv select::-webkit-scrollbar-thumb {
-    background-color: #CCCCCC; /* Thumb color */
-    border-radius: 10px; /* Rounded thumb */
+    background-color: #CCCCCC; 
+    border-radius: 10px; 
 }
 
 #detailsDiv::-webkit-scrollbar-thumb:hover, #filterDiv select::-webkit-scrollbar-thumb:hover {
-    background-color: #BBBBBB; /* Slightly darker thumb on hover */
+    background-color: #BBBBBB; 
 }
 
 #detailsDiv::-webkit-scrollbar-track, #filterDiv select::-webkit-scrollbar-track {
-    background-color: #000; /* Scrollbar track color */
-    border-radius: 10px; /* Rounded track for aesthetics */
+    background-color: #000; 
+    border-radius: 10px; 
+}
+
+#descDiv {
+    scrollbar-width: thin;
+    scrollbar-color: #CCCCCC #000;
+}
+#descDiv::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+#descDiv::-webkit-scrollbar-thumb {
+    background-color: #CCCCCC;
+    border-radius: 10px;
+}
+#descDiv::-webkit-scrollbar-thumb:hover {
+    background-color: #BBBBBB;
+}
+#descDiv::-webkit-scrollbar-track {
+    background-color: #000;
+    border-radius: 10px;
 }
 
 
@@ -195,7 +218,7 @@ body {
 }
 
 #filterDiv button:hover {
-    background-color: #333333; /* Darker button color on hover */
+    background-color: #333333;
 }
 
 
@@ -228,7 +251,26 @@ body {
     left: 0;
     width: 100%;
     z-index: 1;
-    transform: translateY(-50%); /* Center vertically */
+    transform: translateY(-50%); 
     background-color: rgba(255, 255, 255, 0.8); 
     color: white;
+}
+
+#categoryDropdown {
+    -webkit-appearance: none; 
+    -moz-appearance: none;
+    appearance: none; 
+    border: 1px solid black;
+    border-radius: 0; 
+    background-color: #CCCCCC; 
+    color: black;
+    width: 100%; 
+    padding: 8px; 
+    cursor: pointer; 
+    line-height: 1.5;
+}
+
+/* Hover state for dropdown */
+#categoryDropdown select:hover {
+    background-color: #BBBBBB;
 }

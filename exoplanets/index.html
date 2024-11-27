@@ -49,10 +49,11 @@
         <select id="filterColumn">
             <option value="" disabled selected>Select a column</option>
         </select>
-        <label for="minValue" id="minValueLabel">Min Value (0)</label>
-        <input id="minValue" type="range" min="0" max="100" step="0.1" value="0">
-        <label for="maxValue" id="maxValueLabel">Max Value (100)</label>
-        <input id="maxValue" type="range" min="0" max="100" step="0.1" value="100">
+        <label for="minValue" id="minValueLabel" style="display:none;">Min Value (0)</label>
+        <input id="minValue" type="range" min="0" max="100" step="0.1" value="0" style="display:none;">
+        <label for="maxValue" id="maxValueLabel" style="display:none;">Max Value (100)</label>
+        <input id="maxValue" type="range" min="0" max="100" step="0.1" value="100" style="display:none;">
+        
         <button onclick="resetFilter()">Reset Filter</button>
     </div>
     <div id="mobileWarning" 
@@ -66,10 +67,7 @@
             const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
             if (isMobile) {
-                // Display the warning message
                 document.getElementById('mobileWarning').style.display = 'block';
-
-                // Optionally hide other parts of the page
                 document.getElementById('descDiv').style.display = 'none';
                 document.getElementById('filterDiv').style.display = 'none';
                 document.getElementById('detailsDiv').style.display = 'none';
@@ -88,16 +86,34 @@
         async function loadData() {
             // Load data from CSV
             const rows = await d3.csv(csvFilePath);
-            originalData = rows; // Save the original data for filtering
+            originalData = rows; 
             return rows;
+        }
+
+        async function loadData() {
+            // Load data from CSV
+            const rows = await d3.csv(csvFilePath);
+
+            // Filter out rows with missing or invalid x, y, z coordinates
+            const filteredRows = rows.filter(row => {
+                const x = parseFloat(row['cart_x']);
+                const y = parseFloat(row['cart_y']);
+                const z = parseFloat(row['cart_z']);
+
+                // Check if x, y, z are valid numbers and not NaN
+                return !isNaN(x) && !isNaN(y) && !isNaN(z);
+            });
+
+            originalData = filteredRows;
+            return filteredRows;
         }
 
         function populateFilterOptions(rows) {
             // Identify numeric columns and exclude those with "error" in their names
-            const numericColumns = Object.keys(rows[0]).filter(key => {
-                const isNumeric = !isNaN(parseFloat(rows[0][key])) && isFinite(rows[0][key]);
+            const Columns = Object.keys(rows[0]).filter(key => {
+                //const isNumeric = !isNaN(parseFloat(rows[0][key])) && isFinite(rows[0][key]);
                 const containsError = key.toLowerCase().includes('err');
-                return isNumeric && !containsError && !excludedColumns.includes(key);
+                return !containsError && !excludedColumns.includes(key);
             });
 
             const filterColumn = document.getElementById('filterColumn');
@@ -106,7 +122,7 @@
             filterColumn.innerHTML = '<option value="" disabled selected>Select a column</option>';
             
             // Add new options excluding "error" columns
-            numericColumns.forEach(key => {
+            Columns.forEach(key => {
                 const option = document.createElement('option');
                 option.value = key;
                 option.textContent = columnMappings[key] || key;
@@ -125,10 +141,9 @@
             const maxValue = parseFloat(document.getElementById('maxValue').value);
 
             if (!filterColumn || isNaN(minValue) || isNaN(maxValue)) {
-                return; // Don't update if inputs are invalid
+                return;
             }
 
-            // Filter the data
             const filteredData = originalData.filter(row => {
                 const value = parseFloat(row[filterColumn]);
                 return value >= minValue && value <= maxValue && !isNaN(value);
@@ -138,59 +153,103 @@
         }
          
         function updateMinMaxValues(rows, selectedColumn) {
-        // Update the min and max values in the sliders based on the selected column
-            if (!selectedColumn) {
-                // If no feature is selected, reset the sliders and clear the labels
-                document.getElementById('minValue').value = 0;
-                document.getElementById('maxValue').value = 100;
-                document.getElementById('minValueLabel').textContent = "Min Value";
-                document.getElementById('maxValueLabel').textContent = "Max Value";
-                return;
-            }
-
-            // Get the values of the selected column
-            const values = rows.map(row => parseFloat(row[selectedColumn])).filter(value => !isNaN(value));
-
-            if (values.length === 0) {
-                // If no numeric values are found for the selected column, reset the sliders
-                document.getElementById('minValue').value = 0;
-                document.getElementById('maxValue').value = 100;
-                document.getElementById('minValueLabel').textContent = "Min Value";
-                document.getElementById('maxValueLabel').textContent = "Max Value";
-                return;
-            }
-
-            // Calculate min and max values
-            const minValue = Math.min(...values);
-            const maxValue = Math.max(...values);
-
-            // Set the min, max, and initial values of the sliders
             const minSlider = document.getElementById('minValue');
             const maxSlider = document.getElementById('maxValue');
+            const minLabel = document.getElementById('minValueLabel');
+            const maxLabel = document.getElementById('maxValueLabel');
+            const filterDiv = document.getElementById('filterDiv');
 
-            minSlider.min = minValue;
-            minSlider.max = maxValue;
-            minSlider.value = minValue;
+            let existingDropdown = document.getElementById('categoryDropdown');
+            if (existingDropdown) {
+                filterDiv.removeChild(existingDropdown);
+            }
 
-            maxSlider.min = minValue;
-            maxSlider.max = maxValue;
-            maxSlider.value = maxValue;
+            const values = rows.map(row => row[selectedColumn]);
+            const isNumeric = values.every(value => !isNaN(parseFloat(value)) && isFinite(value));
 
-            // Update the labels with the current min and max values
-            document.getElementById('minValueLabel').textContent = `Min Value (${minValue})`;
-            document.getElementById('maxValueLabel').textContent = `Max Value (${maxValue})`;
+            if (isNumeric) {
+                minSlider.style.display = 'inline';
+                maxSlider.style.display = 'inline';
+                minLabel.style.display = 'inline';
+                maxLabel.style.display = 'inline';
+
+                const numericValues = values.map(v => parseFloat(v)).filter(v => !isNaN(v));
+                const minValue = Math.min(...numericValues);
+                const maxValue = Math.max(...numericValues);
+
+                minSlider.min = minValue;
+                minSlider.max = maxValue;
+                minSlider.value = minValue;
+
+                maxSlider.min = minValue;
+                maxSlider.max = maxValue;
+                maxSlider.value = maxValue;
+
+                minLabel.textContent = `Min Value (${minValue})`;
+                maxLabel.textContent = `Max Value (${maxValue})`;
+
+
+                updatePlot(originalData);
+            } else {
+                // Hide sliders
+                minSlider.style.display = 'none';
+                maxSlider.style.display = 'none';
+                minLabel.style.display = 'none';
+                maxLabel.style.display = 'none';
+
+                // Create and add dropdown
+                const dropdown = document.createElement('select');
+                dropdown.id = 'categoryDropdown';
+                dropdown.innerHTML = `<option value="" selected>Show all</option>`;
+
+                const uniqueValues = [...new Set(values)];
+                uniqueValues.forEach(value => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = value;
+                    dropdown.appendChild(option);
+                });
+
+                dropdown.addEventListener('change', function () {
+                    const selectedFactor = this.value;
+
+                    if (selectedFactor) {
+                        // Apply filtering when a factor is selected
+                        const filteredData = originalData.filter(row => row[selectedColumn] === selectedFactor);
+                        updatePlot(filteredData);
+                    } else {
+                        // Show all data if "Show all" is selected
+                        updatePlot(originalData);
+                    }
+                });
+
+                filterDiv.insertBefore(dropdown, document.querySelector('button')); 
+
+                // Draw all elements initially (no filter applied yet)
+                updatePlot(originalData);
+            }
         }
- 
-        function resetFilter() {
-            document.getElementById('filterColumn').value = '';
-            document.getElementById('minValue').value = 0;
-            document.getElementById('maxValue').value = 100;
-            document.getElementById('minValueLabel').textContent = "Min Value";
-            document.getElementById('maxValueLabel').textContent = "Max Value";
 
+        function resetFilter() {
+            // Clear the filter column selection
+            document.getElementById('filterColumn').value = '';
+
+            // Clear sliders
+            document.getElementById('minValue').style.display = 'none';
+            document.getElementById('maxValue').style.display = 'none';
+            document.getElementById('minValueLabel').style.display = 'none';
+            document.getElementById('maxValueLabel').style.display = 'none';
+
+            // Remove dropdown if it exists
+            let existingDropdown = document.getElementById('categoryDropdown');
+            if (existingDropdown) {
+                existingDropdown.remove();
+            }
+
+            // Reset the plot to the original data
             updatePlot(originalData);
         }
-
+        
         function calculateMarkerSize(totalPoints, minSize, maxSize, scalingFactor) {
             return Math.max(minSize, maxSize * Math.pow(totalPoints, -scalingFactor));
         }
@@ -335,7 +394,6 @@
         // Attach listeners to the sliders
         document.getElementById('minValue').addEventListener('input', dynamicFilterUpdate);
         document.getElementById('maxValue').addEventListener('input', dynamicFilterUpdate);
-
         document.getElementById('filterColumn').addEventListener('change', function() {
             const selectedColumn = this.value;
             if (selectedColumn) {
