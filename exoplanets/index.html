@@ -109,31 +109,30 @@
         }
 
         function populateFilterOptions(rows) {
-            // Identify numeric columns and exclude those with "error" in their names
-            const Columns = Object.keys(rows[0]).filter(key => {
-                //const isNumeric = !isNaN(parseFloat(rows[0][key])) && isFinite(rows[0][key]);
-                const containsError = key.toLowerCase().includes('err');
-                return !containsError && !excludedColumns.includes(key);
-            });
+            
+            const columns = Object.keys(columnMappings);
 
             const filterColumn = document.getElementById('filterColumn');
             
             // Clear existing options
             filterColumn.innerHTML = '<option value="" disabled selected>Select a column</option>';
             
-            // Add new options excluding "error" columns
-            Columns.forEach(key => {
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = columnMappings[key] || key;
-                filterColumn.appendChild(option);
+            // Add new options based on the order in columnMappings, and excluding 'err' columns and the ones in excludedColumns
+            columns.forEach(key => {
+                // Check if the column includes 'err', 'lim', 'flag' or is in the excludedColumns list
+                if (!key.toLowerCase().includes('err') && !key.toLowerCase().includes('lim') 
+                && !key.toLowerCase().includes('flag') && !excludedColumns.includes(key)) {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = columnMappings[key] || key; // Use the columnMappings value for the label
+                    filterColumn.appendChild(option);
+                }
             });
 
             filterColumn.addEventListener('change', function() {
                 updateMinMaxValues(rows, filterColumn.value);
             });
         }
-
         function dynamicFilterUpdate() {
         // Dynamically update the plot based on slider movements
             const filterColumn = document.getElementById('filterColumn').value;
@@ -153,82 +152,86 @@
         }
          
         function updateMinMaxValues(rows, selectedColumn) {
-            const minSlider = document.getElementById('minValue');
-            const maxSlider = document.getElementById('maxValue');
-            const minLabel = document.getElementById('minValueLabel');
-            const maxLabel = document.getElementById('maxValueLabel');
-            const filterDiv = document.getElementById('filterDiv');
+    const minSlider = document.getElementById('minValue');
+    const maxSlider = document.getElementById('maxValue');
+    const minLabel = document.getElementById('minValueLabel');
+    const maxLabel = document.getElementById('maxValueLabel');
+    const filterDiv = document.getElementById('filterDiv');
 
-            let existingDropdown = document.getElementById('categoryDropdown');
-            if (existingDropdown) {
-                filterDiv.removeChild(existingDropdown);
-            }
+    let existingDropdown = document.getElementById('categoryDropdown');
+    if (existingDropdown) {
+        filterDiv.removeChild(existingDropdown);
+    }
 
-            const values = rows.map(row => row[selectedColumn]);
-            const isNumeric = values.every(value => !isNaN(parseFloat(value)) && isFinite(value));
+    // Extract values for the selected column
+    const values = rows.map(row => row[selectedColumn]).filter(value => value !== null && value !== "" && value !== undefined)
+    const numericValues = values.map(value => parseFloat(value)).filter(value => !isNaN(value));
 
-            if (isNumeric) {
-                minSlider.style.display = 'inline';
-                maxSlider.style.display = 'inline';
-                minLabel.style.display = 'inline';
-                maxLabel.style.display = 'inline';
-
-                const numericValues = values.map(v => parseFloat(v)).filter(v => !isNaN(v));
-                const minValue = Math.min(...numericValues);
-                const maxValue = Math.max(...numericValues);
-
-                minSlider.min = minValue;
-                minSlider.max = maxValue;
-                minSlider.value = minValue;
-
-                maxSlider.min = minValue;
-                maxSlider.max = maxValue;
-                maxSlider.value = maxValue;
-
-                minLabel.textContent = `Min Value (${minValue})`;
-                maxLabel.textContent = `Max Value (${maxValue})`;
+    // Check if all values are numeric
+    const isNumeric = numericValues.length === values.length;
 
 
-                updatePlot(originalData);
+    if (isNumeric) {
+        // Handle as numeric: show sliders
+        minSlider.style.display = 'inline';
+        maxSlider.style.display = 'inline';
+        minLabel.style.display = 'inline';
+        maxLabel.style.display = 'inline';
+
+        const minValue = Math.min(...numericValues);
+        const maxValue = Math.max(...numericValues);
+
+        minSlider.min = minValue;
+        minSlider.max = maxValue;
+        minSlider.value = minValue;
+
+        maxSlider.min = minValue;
+        maxSlider.max = maxValue;
+        maxSlider.value = maxValue;
+
+        minLabel.textContent = `Min Value (${minValue})`;
+        maxLabel.textContent = `Max Value (${maxValue})`;
+
+        updatePlot(originalData);
+    } else {
+        // Handle as categorical: show dropdown
+        minSlider.style.display = 'none';
+        maxSlider.style.display = 'none';
+        minLabel.style.display = 'none';
+        maxLabel.style.display = 'none';
+
+        const dropdown = document.createElement('select');
+        dropdown.id = 'categoryDropdown';
+        dropdown.innerHTML = `<option value="" selected>Show all</option>`;
+
+        // Create a list of unique (non-numeric) values
+        const uniqueValues = [...new Set(values)];
+        uniqueValues.forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            dropdown.appendChild(option);
+        });
+
+        dropdown.addEventListener('change', function () {
+            const selectedFactor = this.value;
+
+            if (selectedFactor) {
+                // Apply filtering for categorical value
+                const filteredData = originalData.filter(row => row[selectedColumn] === selectedFactor);
+                updatePlot(filteredData);
             } else {
-                // Hide sliders
-                minSlider.style.display = 'none';
-                maxSlider.style.display = 'none';
-                minLabel.style.display = 'none';
-                maxLabel.style.display = 'none';
-
-                // Create and add dropdown
-                const dropdown = document.createElement('select');
-                dropdown.id = 'categoryDropdown';
-                dropdown.innerHTML = `<option value="" selected>Show all</option>`;
-
-                const uniqueValues = [...new Set(values)];
-                uniqueValues.forEach(value => {
-                    const option = document.createElement('option');
-                    option.value = value;
-                    option.textContent = value;
-                    dropdown.appendChild(option);
-                });
-
-                dropdown.addEventListener('change', function () {
-                    const selectedFactor = this.value;
-
-                    if (selectedFactor) {
-                        // Apply filtering when a factor is selected
-                        const filteredData = originalData.filter(row => row[selectedColumn] === selectedFactor);
-                        updatePlot(filteredData);
-                    } else {
-                        // Show all data if "Show all" is selected
-                        updatePlot(originalData);
-                    }
-                });
-
-                filterDiv.insertBefore(dropdown, document.querySelector('button')); 
-
-                // Draw all elements initially (no filter applied yet)
+                // Show all data if "Show all" is selected
                 updatePlot(originalData);
             }
-        }
+        });
+
+        filterDiv.insertBefore(dropdown, document.querySelector('button'));
+        
+        updatePlot(originalData); // Draw all elements initially (no filter applied yet)
+    }
+}
+
 
         function resetFilter() {
             // Clear the filter column selection
@@ -249,7 +252,7 @@
             // Reset the plot to the original data
             updatePlot(originalData);
         }
-        
+
         function calculateMarkerSize(totalPoints, minSize, maxSize, scalingFactor) {
             return Math.max(minSize, maxSize * Math.pow(totalPoints, -scalingFactor));
         }
