@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exoplanet 3D Visualization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: white;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Hide scrollbars */
+        }
+        #title {
+            text-align: center;
+            margin: 20px 0;
+        }
+        #description {
+            text-align: center;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="title">
+        <h1>3D Visualization of Exoplanet Positions</h1>
+    </div>
+    <div id="description">
+        <p>This visualization represents the positions of various exoplanets in a 3D Cartesian coordinate system. Each dot represents an exoplanet, with its coordinates calculated based on its right ascension, declination, and distance from Earth. The blue point represents Earth at the origin (0, 0, 0).</p>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.rawgit.com/mrdoob/three.js/r128/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.2/d3.min.js"></script>
+
+    <script>
+        // Set up scene, camera, and renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 20000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Add orbit controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        // Add lighting
+        const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.5);
+        scene.add(ambientLight);
+
+        // Load data from CSV
+        d3.csv("exoplanets_cartesian.csv").then(data => {
+            console.log("Data loaded from CSV:", data);
+            if (data.length === 0 || !data[0].cart_x || !data[0].cart_y || !data[0].cart_z) {
+                console.error("Data seems to be missing expected keys 'cart_x', 'cart_y', or 'cart_z'.");
+                return;
+            }
+
+            // Create geometry for exoplanets
+            const exoplanetGeometry = new THREE.SphereGeometry(0.3, 16, 16); // Base size
+            const exoplanetMaterial = new THREE.MeshBasicMaterial({ color: 'white' });
+            const exoplanets = [];
+
+            data.forEach(d => {
+                const x = parseFloat(d.cart_x);
+                const y = parseFloat(d.cart_y);
+                const z = parseFloat(d.cart_z);
+                const exoplanet = new THREE.Mesh(exoplanetGeometry, exoplanetMaterial);
+                exoplanet.position.set(x, y, z);
+                scene.add(exoplanet);
+                exoplanets.push(exoplanet);
+            });
+
+            // Create Earth at the origin
+            const earthGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+            const earthMaterial = new THREE.MeshBasicMaterial({ color: 'blue' });
+            const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+            scene.add(earth);
+
+            // Set camera position
+            camera.position.set(0, 0, 15);
+
+            // Render loop
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                // Maintain a fixed size on the screen regardless of zoom
+                const fixedSize = 0.3; // Fixed size for exoplanets
+                exoplanets.forEach(exoplanet => {
+                    exoplanet.scale.set(fixedSize, fixedSize, fixedSize); // Keep the size fixed
+                });
+                
+                // Adjust Earth's size dynamically based on the distance
+                earth.scale.set(fixedSize, fixedSize, fixedSize);
+                
+                renderer.render(scene, camera);
+            }
+            animate();
+        }).catch(error => {
+            console.error("Error loading CSV data:", error);
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

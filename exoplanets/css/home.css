@@ -1,0 +1,46 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: black;
+    font-family: 'Space Grotesk', sans-serif;
+    color: rgba(255, 255, 255, 0.8);;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    font-size: 13px;
+    display: flex; /* Make the body a flex container */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+#main {
+    background-color:black; 
+    padding: 20px;
+    max-width: 800px;
+    text-align: center; /* Center content within the div */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: for a subtle shadow */
+}
+
+#titleBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: fit-content;
+    height: 50px;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+#titleBar img {
+    margin-right: 10px;
+}
+
+#titleBar span {
+    margin-right: 15px;
+    color: black;
+    font-size: 14px;
+}

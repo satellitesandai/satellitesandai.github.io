@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Exoplanets</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+    <div id="descDiv">
+        <img src="images/exoplanet2.png" width="50" height="50" />
+        <h1>Exoplanets in 3D Space!</h1>
+        <p>
+            The interactive scatter plot provides a novel approach to the understanding of exoplanet discovery by visualizing the spatial relation of discovered exoplanets.
+            Each point represents an exoplanet, plotted according to its relative position in space. 
+            This immersive experience allows the user to explore exoplanets and gain an understanding how exploration missions allow us to shed light into the cosmos around us.
+            View detailed information on each exoplanet by clicking on individual points, which will then appear in the panel on the right.
+        </p>
+        <h3>Controls</h3>
+        <ul>
+            <li>Left Click and drag to rotate the 3D view.</li>
+            <li>Scroll to zoom in and out.</li>
+            <li>Hold Ctrl or right Click and drag to pan across the plot.</li>
+            <li>Further control options can be found on the top right.</li>
+        </ul>
+        <p>
+            Data courtesy of NASA's Exoplanet Archive. For more information, visit 
+            <a href="https://exoplanetarchive.ipac.caltech.edu/" target="_blank">NASA Exoplanet Archive</a>.
+        </p>
+        <p>
+            This plot was created by Frederick Schindlegger. For questions or more information, feel free to reach out at 
+            <a href="mailto:frederick@satellitesandai.com">frederick@satellitesandai.com</a>.
+        </p>
+    </div>
+    <div id="loading"></div>
+    <div id="plotDiv"></div>
+
+    <!-- Details Div -->
+    <div id="detailsDiv">
+        <h2>Exoplanet Details</h2>
+        <div id="modal-body">Click on a point in the plot to see details here.</div>
+    </div>
+
+    <!-- Filter Div -->
+    <div id="filterDiv">
+        <h2>Filter Data</h2>
+        <select id="filterColumn">
+            <option value="" disabled selected>Select a column</option>
+        </select>
+        <!-- Min Value Slider -->
+        <label for="minValue" id="minValueLabel">Min Value (0)</label>
+        <input id="minValue" type="range" min="0" max="100" step="0.1" value="0">
+
+        <!-- Max Value Slider -->
+        <label for="maxValue" id="maxValueLabel">Max Value (100)</label>
+        <input id="maxValue" type="range" min="0" max="100" step="0.1" value="100">
+
+        <button onclick="applyFilter()">Apply Filter</button>
+        <button onclick="resetFilter()">Reset Filter</button>
+    </div>
+
+    <script>
+        document.getElementById('loading').style.display = 'block';
+
+        const csvFilePath = 'data/exoplanets_cartesian.csv'; // Ensure this path is correct
+        const jsonFilePath = 'data/columnMappings.json'; // Path to your JSON file with mappings
+        let columnMappings = {}; // This will hold the loaded JSON mappings
+        let originalData = []; // Store the original data for filtering
+        const excludedColumns = ["cart_x", "cart_y", "cart_z", "loc_rowid"]; // Add more column names here if needed
+
+        // Load JSON mappings
+        async function loadColumnMappings() {
+            const response = await fetch(jsonFilePath);
+            columnMappings = await response.json();
+        }
+
+        // Load data from CSV
+        async function loadData() {
+            const rows = await d3.csv(csvFilePath);
+            originalData = rows; // Save the original data for filtering
+            return rows;
+        }
+
+        // Populate filter options with only numerical columns
+        function populateFilterOptions(rows) {
+            const numericColumns = Object.keys(rows[0]).filter(key => {
+                return !isNaN(parseFloat(rows[0][key])) && isFinite(rows[0][key]) && (!excludedColumns.includes(key));
+            });
+
+            const filterColumn = document.getElementById('filterColumn');
+            numericColumns.forEach(column => {
+                const option = document.createElement('option');
+                option.value = column;
+                option.textContent = columnMappings[column] || column;
+                filterColumn.appendChild(option);
+            });
+
+            // Add event listener for column selection
+            filterColumn.addEventListener('change', function() {
+                updateMinMaxValues(rows, filterColumn.value);
+            });
+        }
+
+
+        // Update the min and max values in the sliders based on the selected column
+        function updateMinMaxValues(rows, selectedColumn) {
+            if (!selectedColumn) {
+                // If no feature is selected, reset the sliders and clear the labels
+                document.getElementById('minValue').value = 0;
+                document.getElementById('maxValue').value = 100;
+                document.getElementById('minValueLabel').textContent = "Min Value";
+                document.getElementById('maxValueLabel').textContent = "Max Value";
+                return;
+            }
+
+        // Get the values of the selected column
+        const values = rows.map(row => parseFloat(row[selectedColumn])).filter(value => !isNaN(value));
+
+        if (values.length === 0) {
+            // If no numeric values are found for the selected column, reset the sliders
+            document.getElementById('minValue').value = 0;
+            document.getElementById('maxValue').value = 100;
+            document.getElementById('minValueLabel').textContent = "Min Value";
+            document.getElementById('maxValueLabel').textContent = "Max Value";
+            return;
+        }
+
+        // Calculate min and max values
+        const minValue = Math.min(...values);
+        const maxValue = Math.max(...values);
+
+        // Set the min, max, and initial values of the sliders
+        const minSlider = document.getElementById('minValue');
+        const maxSlider = document.getElementById('maxValue');
+
+        minSlider.min = minValue;
+        minSlider.max = maxValue;
+        minSlider.value = minValue;
+
+        maxSlider.min = minValue;
+        maxSlider.max = maxValue;
+        maxSlider.value = maxValue;
+
+        // Update the labels with the current min and max values
+        document.getElementById('minValueLabel').textContent = `Min Value (${minValue})`;
+        document.getElementById('maxValueLabel').textContent = `Max Value (${maxValue})`;
+    }
+
+
+        // Update label dynamically as slider values change
+        document.getElementById('minValue').addEventListener('input', function() {
+            document.getElementById('minValueLabel').textContent = `Min Value (${this.value})`;
+        });
+
+        document.getElementById('maxValue').addEventListener('input', function() {
+            document.getElementById('maxValueLabel').textContent = `Max Value (${this.value})`;
+        });
+
+// Apply the filter to the plot
+function applyFilter() {
+    const filterColumn = document.getElementById('filterColumn').value;
+    const minValue = parseFloat(document.getElementById('minValue').value);
+    const maxValue = parseFloat(document.getElementById('maxValue').value);
+
+    if (!filterColumn || isNaN(minValue) || isNaN(maxValue)) {
+        alert("Please select a column and specify valid min/max values.");
+        return;
+    }
+
+    const updatedData = originalData.map(row => {
+        const value = parseFloat(row[filterColumn]);
+        const isInRange = value >= minValue && value <= maxValue;
+
+        // Add additional properties for styling based on the filter
+        return {
+            ...row,
+            markerSize: isInRange ? 6 : 2, // Larger for in-range points
+            markerOpacity: isInRange ? 1.0 : 0.2, // Higher opacity for in-range points
+            markerColor: isInRange ? 'cyan' : 'white' // Different color for in-range points (optional)
+        };
+    });
+
+    updatePlot(updatedData);
+}
+
+// Update the Plotly plot
+function updatePlot(data) {
+    const unpack = (rows, key) => rows.map(row => row[key]);
+
+    const plotData = [{
+        x: unpack(data, 'cart_x'), 
+        y: unpack(data, 'cart_y'), 
+        z: unpack(data, 'cart_z'),
+        mode: 'markers',
+        marker: {
+            size: unpack(data, 'markerSize'), // Use dynamically set sizes
+            color: unpack(data, 'markerColor'), // Use dynamically set colors
+            opacity: unpack(data, 'markerOpacity'), // Use dynamically set opacities
+        },
+        text: unpack(data, 'pl_name'), 
+        hoverinfo: 'text',
+        type: 'scatter3d'
+    }];
+
+    const layout = {
+        margin: {
+            l: 0,
+            r: 0,
+            b: 0,
+            t: 0
+        },
+        plot_bgcolor: "black",
+        paper_bgcolor: "black",
+        scene: {
+            xaxis: { showgrid: false, zeroline: false, showline: false, showticklabels: false },
+            yaxis: { showgrid: false, zeroline: false, showline: false, showticklabels: false },
+            zaxis: { showgrid: false, zeroline: false, showline: false, showticklabels: false }
+        }
+    };
+
+    Plotly.react('plotDiv', plotData, layout);
+}
+
+
+        // Initialize the page
+        Promise.all([loadColumnMappings(), loadData()])
+            .then(([_, rows]) => {
+                populateFilterOptions(rows);
+                updatePlot(rows);
+                document.getElementById('loading').style.display = 'none';
+            })
+            .catch(error => console.error("Error loading data or mappings:", error));
+    </script>
+</body>
+</html>

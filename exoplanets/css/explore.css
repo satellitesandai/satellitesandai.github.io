@@ -1,0 +1,310 @@
+@font-face {
+    font-family: 'OCR-A';
+    src: url('/fonts/ocr-a-extended.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+/* Fullscreen plot as a background */
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: black;
+    /*font-family: 'OCR-A', sans-serif;*/
+    font-family: 'Space Grotesk', sans-serif;
+    color: black;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    font-size: 13px;
+}
+
+/* Plot div covering the entire viewport */
+#plotDiv {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0; /* Ensure plot is in the background */
+}
+
+/* Description div positioned on top of plot */
+#descDiv {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    width: 15%;
+    height: 90%;
+    background-color: rgba(255, 255, 255, 0.8); 
+    padding: 10px;
+    z-index: 1; /* Ensure it's above plotDiv */
+    scrollbar-color: #CCCCCC #000;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Details div positioned on top of plot */
+#detailsDiv {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: fit-content;
+    height: 50%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: rgba(255, 255, 255, 0.8); 
+    padding: 10px;
+    z-index: 1; /* Ensure it's above plotDiv */
+    scrollbar-color: #CCCCCC #000;
+
+}
+
+#loading {
+    display: none; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Ensure it's above plotDiv */
+    background-image: url('../images/loading2.gif'); 
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 220px 160px;
+}
+
+
+/* Filter window container */
+#filterDiv {
+    position: fixed;
+    top: 30px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.8); 
+    color: black; 
+    padding: 20px;
+    max-width: 320px;
+    z-index: 1000;
+}
+
+/* Reset for the slider track */
+#filterDiv input[type="range"] {
+    -webkit-appearance: none; 
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: black; 
+    border: none; 
+    outline: none; 
+}
+
+/* Slider thumb styling for WebKit (Chrome, Edge) */
+#filterDiv input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; 
+    width: 20px;
+    height: 20px;
+    border-radius: 50%; 
+    background: black; 
+    box-shadow: none; 
+    cursor: pointer;
+}
+
+/* Hover styling */
+#filterDiv input[type="range"]::-webkit-slider-thumb:hover {
+    background: black; 
+}
+
+/* Slider thumb styling for Firefox */
+#filterDiv input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: black; 
+    box-shadow: none;
+    cursor: pointer;
+}
+
+/* Focused slider behavior */
+#filterDiv input[type="range"]:focus::-webkit-slider-thumb,
+#filterDiv input[type="range"]:focus::-moz-range-thumb {
+    background: black;
+}
+
+
+/* Dropdown select styling */
+#filterDiv select {
+    -webkit-appearance: none; 
+    -moz-appearance: none;
+    appearance: none; 
+    border: 1px solid black;
+    border-radius: 0; 
+    background-color: #CCCCCC; 
+    color: black;
+    width: 100%; 
+    padding: 8px; 
+    cursor: pointer; 
+    line-height: 1.5;
+}
+
+/* Hover state for dropdown */
+#filterDiv select:hover {
+    background-color: #BBBBBB;
+}
+
+/* Focus styling */
+#filterDiv select:focus {
+    outline: 2px solid black; 
+    background-color: #CCCCCC; 
+}
+
+/* General Scrollbar Styling */
+#detailsDiv, #filterDiv select {
+    scrollbar-width: thin; 
+    scrollbar-color: #CCCCCC #000; 
+}
+
+/* WebKit-based browsers (Chrome, Edge, Safari) */
+#detailsDiv::-webkit-scrollbar, #filterDiv select::-webkit-scrollbar {
+    width: 8px; 
+    height: 8px; 
+}
+
+#detailsDiv::-webkit-scrollbar-thumb, #filterDiv select::-webkit-scrollbar-thumb {
+    background-color: #CCCCCC; 
+    border-radius: 10px; 
+}
+
+#detailsDiv::-webkit-scrollbar-thumb:hover, #filterDiv select::-webkit-scrollbar-thumb:hover {
+    background-color: #BBBBBB; 
+}
+
+#detailsDiv::-webkit-scrollbar-track, #filterDiv select::-webkit-scrollbar-track {
+    background-color: #000; 
+    border-radius: 10px; 
+}
+
+#descDiv {
+    scrollbar-width: thin;
+    scrollbar-color: #CCCCCC #000;
+}
+#descDiv::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+#descDiv::-webkit-scrollbar-thumb {
+    background-color: #CCCCCC;
+    border-radius: 10px;
+}
+#descDiv::-webkit-scrollbar-thumb:hover {
+    background-color: #BBBBBB;
+}
+#descDiv::-webkit-scrollbar-track {
+    background-color: #000;
+    border-radius: 10px;
+}
+
+
+/* Reset button styling */
+#filterDiv button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: black; 
+    color: #CCCCCC; 
+    border: none;
+    /*border-radius: 5px;*/
+    cursor: pointer;
+}
+
+#filterDiv button:hover {
+    background-color: #333333;
+}
+
+
+/* Adjust margin of all headings and paragraphs inside these containers */
+#filterDiv h2,
+#detailsDiv h2 {
+    margin-top: 0; 
+}
+
+
+#detailsDiv ul {
+    list-style-type: none; 
+    padding: 0; 
+    margin: 0; 
+}
+
+#detailsDiv li {
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 5px; 
+    color: #000; 
+}
+#detailsDiv li strong {
+    margin-right: 10px; 
+}
+
+#mobileWarning {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+    transform: translateY(-50%); 
+    background-color: rgba(255, 255, 255, 0.8); 
+    color: white;
+}
+
+#categoryDropdown {
+    -webkit-appearance: none; 
+    -moz-appearance: none;
+    appearance: none; 
+    border: 1px solid black;
+    border-radius: 0; 
+    background-color: #CCCCCC; 
+    color: black;
+    width: 100%; 
+    padding: 8px; 
+    cursor: pointer; 
+    line-height: 1.5;
+}
+
+/* Hover state for dropdown */
+#categoryDropdown select:hover {
+    background-color: #BBBBBB;
+}
+
+#titleBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: fit-content;
+    height: 50px;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+#titleBar img {
+    margin-right: 10px;
+}
+
+#titleBar span {
+    margin-right: 15px;
+    color: black;
+    font-size: 14px;
+}
+
+.draggable {
+    position: absolute;
+    cursor: move;
+    z-index: 10;
+}
+
+.draggable:active {
+    cursor: grabbing;
+}

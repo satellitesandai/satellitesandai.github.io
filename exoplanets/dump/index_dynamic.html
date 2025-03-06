@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/exoplanet2.png">
+    <title>Exoplanets 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body>
+    <div id="descDiv">
+        <img src="images/exoplanet2.png" width="50" height="50" />
+        <h1>Exoplanets in 3D Space!</h1>
+        <p>
+            The interactive plot provides an approach to the understanding of exoplanet discovery by visualizing the spatial relation of discovered exoplanets.
+            Each point represents an exoplanet according to its relative position in space. 
+            This immersive experience allows to explore exoplanets and gain an understanding how exploration missions allow us to shed light into the cosmos around us.
+        <p>View detailed information on each exoplanet by clicking on individual points, which will then appear in the details tab.</p>
+        <p>Refine the displayed exoplanet data by applying specific criteria in the filter tab.</p>    
+        </p>
+        <h3>Controls</h3>
+        <ul>
+            <li>Left Click and drag to rotate the 3D view.</li>
+            <li>Scroll to zoom in and out.</li>
+            <li>Hold Ctrl or right Click and drag to pan across the plot.</li>
+            <li>Further control options can be found on the top right.</li>
+        </ul>
+        <p>
+            Data courtesy of NASA's Exoplanet Archive. For more information, visit 
+            <a href="https://exoplanetarchive.ipac.caltech.edu/" target="_blank">NASA Exoplanet Archive</a>.
+        </p>
+        <p>
+            This plot was created by Frederick Schindlegger. For questions or more information, feel free to reach out at 
+            <a href="mailto:frederick@satellitesandai.com">frederick@satellitesandai.com</a>.
+        </p>
+    </div>
+    <div id="loading"></div>
+    <div id="plotDiv"></div>
+    <div id="detailsDiv">
+        <h2>Exoplanet Details</h2>
+        <div id="modal-body">Click on a point in the plot to see details here.</div>
+    </div>
+    <div id="filterDiv">
+        <h2>Filter Data</h2>
+        <select id="filterColumn">
+            <option value="" disabled selected>Select a column</option>
+        </select>
+        <label for="minValue" id="minValueLabel">Min Value (0)</label>
+        <input id="minValue" type="range" min="0" max="100" step="0.1" value="0">
+        <label for="maxValue" id="maxValueLabel">Max Value (100)</label>
+        <input id="maxValue" type="range" min="0" max="100" step="0.1" value="100">
+        <button onclick="resetFilter()">Reset Filter</button>
+    </div>
+    <div id="mobileWarning" 
+            style="display: none; text-align: center; padding: 20px; background-color: #ffcccc; color: #333; font-size: 18px;">
+        <p>Sorry, this webpage is only accessible on a desktop browser.</p>
+    </div>
+    
+    <script>
+
+        function detectMobile() {
+            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                document.getElementById('mobileWarning').style.display = 'block';
+                document.getElementById('descDiv').style.display = 'none';
+                document.getElementById('filterDiv').style.display = 'none';
+                document.getElementById('detailsDiv').style.display = 'none';
+                document.getElementById('plotDiv').style.display = 'none';
+            }
+        }
+
+        async function loadColumnMappings() {
+            // Load JSON mappings
+            const response = await fetch(mappingsFilePath
+    
+            );
+            columnMappings = await response.json();
+        }
+
+        async function loadData() {
+            // Load data from CSV
+            const rows = await d3.csv(csvFilePath);
+            originalData = rows; // Save the original data for filtering
+            return rows;
+        }
+
+        function populateFilterOptions(rows) {
+            // Identify numeric columns and exclude those with "error" in their names
+            const numericColumns = Object.keys(rows[0]).filter(key => {
+                const isNumeric = !isNaN(parseFloat(rows[0][key])) && isFinite(rows[0][key]);
+                const containsError = key.toLowerCase().includes('err');
+                return isNumeric && !containsError && !excludedColumns.includes(key);
+            });
+
+            const filterColumn = document.getElementById('filterColumn');
+            
+            // Clear existing options
+            filterColumn.innerHTML = '<option value="" disabled selected>Select a column</option>';
+            
+            // Add new options excluding "error" columns
+            numericColumns.forEach(key => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = columnMappings[key] || key;
+                filterColumn.appendChild(option);
+            });
+
+            filterColumn.addEventListener('change', function() {
+                updateMinMaxValues(rows, filterColumn.value);
+            });
+        }
+
+        function dynamicFilterUpdate() {
+        // Dynamically update the plot based on slider movements
+            const filterColumn = document.getElementById('filterColumn').value;
+            const minValue = parseFloat(document.getElementById('minValue').value);
+            const maxValue = parseFloat(document.getElementById('maxValue').value);
+
+            if (!filterColumn || isNaN(minValue) || isNaN(maxValue)) {
+                return; // Don't update if inputs are invalid
+            }
+
+            // Filter the data
+            const filteredData = originalData.filter(row => {
+                const value = parseFloat(row[filterColumn]);
+                return value >= minValue && value <= maxValue && !isNaN(value);
+            });
+
+            updatePlot(filteredData);
+        }
+         
+        function updateMinMaxValues(rows, selectedColumn) {
+        // Update the min and max values in the sliders based on the selected column
+            if (!selectedColumn) {
+                // If no feature is selected, reset the sliders and clear the labels
+                document.getElementById('minValue').value = 0;
+                document.getElementById('maxValue').value = 100;
+                document.getElementById('minValueLabel').textContent = "Min Value";
+                document.getElementById('maxValueLabel').textContent = "Max Value";
+                return;
+            }
+
+            // Get the values of the selected column
+            const values = rows.map(row => parseFloat(row[selectedColumn])).filter(value => !isNaN(value));
+
+            if (values.length === 0) {
+                // If no numeric values are found for the selected column, reset the sliders
+                document.getElementById('minValue').value = 0;
+                document.getElementById('maxValue').value = 100;
+                document.getElementById('minValueLabel').textContent = "Min Value";
+                document.getElementById('maxValueLabel').textContent = "Max Value";
+                return;
+            }
+
+            // Calculate min and max values
+            const minValue = Math.min(...values);
+            const maxValue = Math.max(...values);
+
+            // Set the min, max, and initial values of the sliders
+            const minSlider = document.getElementById('minValue');
+            const maxSlider = document.getElementById('maxValue');
+
+            minSlider.min = minValue;
+            minSlider.max = maxValue;
+            minSlider.value = minValue;
+
+            maxSlider.min = minValue;
+            maxSlider.max = maxValue;
+            maxSlider.value = maxValue;
+
+            // Update the labels with the current min and max values
+            document.getElementById('minValueLabel').textContent = `Min Value (${minValue})`;
+            document.getElementById('maxValueLabel').textContent = `Max Value (${maxValue})`;
+        }
+ 
+        function resetFilter() {
+            document.getElementById('filterColumn').value = '';
+            document.getElementById('minValue').value = 0;
+            document.getElementById('maxValue').value = 100;
+            document.getElementById('minValueLabel').textContent = "Min Value";
+            document.getElementById('maxValueLabel').textContent = "Max Value";
+
+            updatePlot(originalData);
+        }
+
+        function calculateMarkerSize(totalPoints, minSize, maxSize, scalingFactor) {
+            return Math.max(minSize, maxSize * Math.pow(totalPoints, -scalingFactor));
+        }
+
+        function updatePlot(data) {
+            const unpack = (rows, key) => rows.map(row => row[key]);
+
+            const totalPoints = data.length;
+            const minSize = 1; 
+            const maxSize = 10; 
+            const scalingFactor = 0.25;
+
+            const markerSize = calculateMarkerSize(totalPoints, minSize, maxSize, scalingFactor);
+
+            // Add "Earth" point at (0, 0, 0) with a distinct size and color
+            const earthPoint = {
+                x: [0],
+                y: [0],
+                z: [0],
+                mode: 'markers',
+                marker: {
+                    size: markerSize,
+                    color: 'blue',
+                    opacity: 0.8,
+                    line: { color: 'blue'}
+                },
+                text: ["Earth"],
+                hoverinfo: 'text',
+                type: 'scatter3d'
+            };
+
+            const exoplanetData = {
+                x: unpack(data, 'cart_x'),
+                y: unpack(data, 'cart_y'),
+                z: unpack(data, 'cart_z'),
+                mode: 'markers',
+                marker: {
+                    size: markerSize,
+                    color: 'white',
+                    opacity: 0.8
+                },
+                text: unpack(data, 'pl_name'),
+                hoverinfo: 'text',
+                type: 'scatter3d'
+            };
+
+            const plotData = [earthPoint, exoplanetData];
+
+            const layout = {
+                margin: {
+                    l: 0,
+                    r: 0,
+                    b: 0,
+                    t: 0
+                },
+                plot_bgcolor: "black",
+                paper_bgcolor: "black",
+                showlegend: false,
+                scene: {
+                    xaxis: {
+                        title: '',
+                        autorange: true,
+                        showgrid: false,
+                        zeroline: false,
+                        showline: false,
+                        autotick: true,
+                        ticks: '',
+                        showticklabels: false,
+                        showspikes: false
+                    },
+                    yaxis: {
+                        title: '',
+                        autorange: true,
+                        showgrid: false,
+                        zeroline: false,
+                        showline: false,
+                        autotick: true,
+                        ticks: '',
+                        showticklabels: false,
+                        showspikes: false
+                    },
+                    zaxis: {
+                        title: '',
+                        autorange: true,
+                        showgrid: false,
+                        zeroline: false,
+                        showline: false,
+                        autotick: true,
+                        ticks: '',
+                        showticklabels: false,
+                        showspikes: false
+                    }
+                }
+            };
+
+            Plotly.react('plotDiv', plotData, layout, { displaylogo: false });
+
+            // Reattach the plot click event after the update
+            document.getElementById('plotDiv').on('plotly_click', function(eventData) {
+                if (eventData && eventData.points && eventData.points.length > 0) {
+                    const point = eventData.points[0];
+                    const clickedPlName = point.text;
+
+                    if (clickedPlName === "Earth") {
+                        document.getElementById('modal-body').innerHTML = "<p>You found home :)</p>";
+                    } else {
+                        loadData().then(function(rows) {
+                            const matchingRow = rows.find(row => row.pl_name === clickedPlName);
+                            if (matchingRow) {
+                                let detailsContent = '<ul style="margin: 0; padding: 0; list-style-type: none;">';
+                                Object.keys(columnMappings).forEach(key => {
+                                    if (!excludedColumns.includes(key) && matchingRow.hasOwnProperty(key)) {
+                                        const displayName = columnMappings[key] || key;
+                                        const value = matchingRow[key] === "" ? "NA" : matchingRow[key];
+                                        detailsContent += `
+                                            <li>
+                                                <strong>${displayName}:</strong>
+                                                <span>${value}</span>
+                                            </li>`;
+                                    }
+                                });
+                                detailsContent += '</ul>';
+                                document.getElementById('modal-body').innerHTML = detailsContent;
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        // Run the function on page load
+        window.onload = detectMobile;
+
+        document.getElementById('loading').style.display = 'block';
+
+        const csvFilePath = 'data/exoplanets_cartesian.csv';
+        const mappingsFilePath = 'data/columnMappings.json';
+        let columnMappings = {}; 
+        let originalData = [];
+        const excludedColumns = ["cart_x", "cart_y", "cart_z", "loc_rowid"]; // Excluded Columns from Filter and Details
+
+        // Attach listeners to the sliders
+        document.getElementById('minValue').addEventListener('input', dynamicFilterUpdate);
+        document.getElementById('maxValue').addEventListener('input', dynamicFilterUpdate);
+        document.getElementById('filterColumn').addEventListener('change', function() {
+            const selectedColumn = this.value;
+            if (selectedColumn) {
+                updateMinMaxValues(originalData, selectedColumn); 
+                dynamicFilterUpdate(); 
+            }
+        });
+        
+        // Update label dynamically as slider values change
+        document.getElementById('minValue').addEventListener('input', function() {
+            document.getElementById('minValueLabel').textContent = `Min Value (${this.value})`;
+        });
+
+        document.getElementById('maxValue').addEventListener('input', function() {
+            document.getElementById('maxValueLabel').textContent = `Max Value (${this.value})`;
+        });
+
+        // Initialize the page
+        Promise.all([loadColumnMappings(), loadData()])
+            .then(([_, rows]) => {
+                populateFilterOptions(rows);
+                updatePlot(rows);
+                document.getElementById('loading').style.display = 'none';
+            })
+            .catch(error => console.error("Error loading data or mappings:", error));
+    </script>
+</body>
+</html>

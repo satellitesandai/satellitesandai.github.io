@@ -1,0 +1,142 @@
+<script>
+    // Load data from CSV
+    const csvFilePath = 'exoplanets_cartesian.csv'; // Ensure this path is correct
+    Plotly.d3.csv(csvFilePath, function(data) {
+        // Convert numerical fields
+        data.forEach(d => {
+            d.cart_x = +d.cart_x;
+            d.cart_y = +d.cart_y;
+            d.cart_z = +d.cart_z;
+        });
+
+        // Create the plot
+        const trace1 = {
+            x: data.map(d => d.cart_x),
+            y: data.map(d => d.cart_y),
+            z: data.map(d => d.cart_z),
+            mode: 'markers',
+            marker: {
+                size: 5,
+                color: 'white',
+            },
+            text: data.map(d => d.pl_name), // Assuming 'pl_name' is the field for names
+            hoverinfo: 'text',
+            type: 'scatter3d'
+        };
+
+        const layout = {
+            scene: {
+                xaxis: { showgrid: false, zeroline: false, showline: false },
+                yaxis: { showgrid: false, zeroline: false, showline: false },
+                zaxis: { showgrid: false, zeroline: false, showline: false }
+            },
+            margin: { l: 0, r: 0, b: 0, t: 0 },
+            paper_bgcolor: '#121212',
+            plot_bgcolor: '#121212',
+            height: 600, // Set a fixed height for the plot
+        };
+
+        Plotly.newPlot('plot', [trace1], layout);
+
+        // Add click event listener
+        const plotDiv = document.getElementById('plot');
+        plotDiv.on('plotly_click', function(data) {
+            const pointIndex = data.points[0].pointIndex; // Get the index of the clicked point
+            const selectedExoplanet = data.points[0].data.text[pointIndex]; // Get the corresponding data
+
+            // Access the full exoplanet data using the point index
+            const exoplanetData = data.points[0].data;
+
+            // Create HTML content for details using all fields
+            const detailsHtml = `
+                <div class="info-title">Row ID:</div> ${exoplanetData.loc_rowid || 'N/A'}<br>
+                <div class="info-title">Name:</div> ${exoplanetData.pl_name || 'N/A'}<br>
+                <div class="info-title">Hostname:</div> ${exoplanetData.hostname || 'N/A'}<br>
+                <div class="info-title">System Number:</div> ${exoplanetData.sy_snum || 'N/A'}<br>
+                <div class="info-title">Planet Number:</div> ${exoplanetData.sy_pnum || 'N/A'}<br>
+                <div class="info-title">Discovery Method:</div> ${exoplanetData.discoverymethod || 'N/A'}<br>
+                <div class="info-title">Discovery Year:</div> ${exoplanetData.disc_year || 'N/A'}<br>
+                <div class="info-title">Discovery Facility:</div> ${exoplanetData.disc_facility || 'N/A'}<br>
+                <div class="info-title">Controversy Flag:</div> ${exoplanetData.pl_controv_flag || 'N/A'}<br>
+                <div class="info-title">Orbital Period:</div> ${exoplanetData.pl_orbper || 'N/A'}<br>
+                <div class="info-title">Orbital Period Error 1:</div> ${exoplanetData.pl_orbpererr1 || 'N/A'}<br>
+                <div class="info-title">Orbital Period Error 2:</div> ${exoplanetData.pl_orbpererr2 || 'N/A'}<br>
+                <div class="info-title">Orbital Period Limit:</div> ${exoplanetData.pl_orbperlim || 'N/A'}<br>
+                <div class="info-title">Semi-major Axis:</div> ${exoplanetData.pl_orbsmax || 'N/A'}<br>
+                <div class="info-title">Semi-major Axis Error 1:</div> ${exoplanetData.pl_orbsmaxerr1 || 'N/A'}<br>
+                <div class="info-title">Semi-major Axis Error 2:</div> ${exoplanetData.pl_orbsmaxerr2 || 'N/A'}<br>
+                <div class="info-title">Semi-major Axis Limit:</div> ${exoplanetData.pl_orbsmaxlim || 'N/A'}<br>
+                <div class="info-title">Radius (Earth):</div> ${exoplanetData.pl_rade || 'N/A'}<br>
+                <div class="info-title">Radius Error 1:</div> ${exoplanetData.pl_radeerr1 || 'N/A'}<br>
+                <div class="info-title">Radius Error 2:</div> ${exoplanetData.pl_radeerr2 || 'N/A'}<br>
+                <div class="info-title">Radius Limit:</div> ${exoplanetData.pl_radelim || 'N/A'}<br>
+                <div class="info-title">Radius (Jupiter):</div> ${exoplanetData.pl_radj || 'N/A'}<br>
+                <div class="info-title">Radius Error 1 (Jupiter):</div> ${exoplanetData.pl_radjerr1 || 'N/A'}<br>
+                <div class="info-title">Radius Error 2 (Jupiter):</div> ${exoplanetData.pl_radjerr2 || 'N/A'}<br>
+                <div class="info-title">Radius Limit (Jupiter):</div> ${exoplanetData.pl_radjlim || 'N/A'}<br>
+                <div class="info-title">Mass (Earth):</div> ${exoplanetData.pl_bmasse || 'N/A'}<br>
+                <div class="info-title">Mass Error 1 (Earth):</div> ${exoplanetData.pl_bmasseerr1 || 'N/A'}<br>
+                <div class="info-title">Mass Error 2 (Earth):</div> ${exoplanetData.pl_bmasseerr2 || 'N/A'}<br>
+                <div class="info-title">Mass Limit (Earth):</div> ${exoplanetData.pl_bmasselim || 'N/A'}<br>
+                <div class="info-title">Mass (Jupiter):</div> ${exoplanetData.pl_bmassj || 'N/A'}<br>
+                <div class="info-title">Mass Error 1 (Jupiter):</div> ${exoplanetData.pl_bmassjerr1 || 'N/A'}<br>
+                <div class="info-title">Mass Error 2 (Jupiter):</div> ${exoplanetData.pl_bmassjerr2 || 'N/A'}<br>
+                <div class="info-title">Mass Limit (Jupiter):</div> ${exoplanetData.pl_bmassjlim || 'N/A'}<br>
+                <div class="info-title">Mass Provider:</div> ${exoplanetData.pl_bmassprov || 'N/A'}<br>
+                <div class="info-title">Eccentricity:</div> ${exoplanetData.pl_orbeccen || 'N/A'}<br>
+                <div class="info-title">Eccentricity Error 1:</div> ${exoplanetData.pl_orbeccenerr1 || 'N/A'}<br>
+                <div class="info-title">Eccentricity Error 2:</div> ${exoplanetData.pl_orbeccenerr2 || 'N/A'}<br>
+                <div class="info-title">Eccentricity Limit:</div> ${exoplanetData.pl_orbeccenlim || 'N/A'}<br>
+                <div class="info-title">Insolation:</div> ${exoplanetData.pl_insol || 'N/A'}<br>
+                <div class="info-title">Insolation Error 1:</div> ${exoplanetData.pl_insolerr1 || 'N/A'}<br>
+                <div class="info-title">Insolation Error 2:</div> ${exoplanetData.pl_insolerr2 || 'N/A'}<br>
+                <div class="info-title">Insolation Limit:</div> ${exoplanetData.pl_insollim || 'N/A'}<br>
+                <div class="info-title">Equilibrium Temperature:</div> ${exoplanetData.pl_eqt || 'N/A'}<br>
+                <div class="info-title">Equilibrium Temperature Error 1:</div> ${exoplanetData.pl_eqterr1 || 'N/A'}<br>
+                <div class="info-title">Equilibrium Temperature Error 2:</div> ${exoplanetData.pl_eqterr2 || 'N/A'}<br>
+                <div class="info-title">Equilibrium Temperature Limit:</div> ${exoplanetData.pl_eqtlim || 'N/A'}<br>
+                <div class="info-title">TTV Flag:</div> ${exoplanetData.ttv_flag || 'N/A'}<br>
+                <div class="info-title">Spectral Type:</div> ${exoplanetData.st_spectype || 'N/A'}<br>
+                <div class="info-title">Effective Temperature:</div> ${exoplanetData.st_teff || 'N/A'}<br>
+                <div class="info-title">Effective Temperature Error 1:</div> ${exoplanetData.st_tefferr1 || 'N/A'}<br>
+                <div class="info-title">Effective Temperature Error 2:</div> ${exoplanetData.st_tefferr2 || 'N/A'}<br>
+                <div class="info-title">Effective Temperature Limit:</div> ${exoplanetData.st_tefflim || 'N/A'}<br>
+                <div class="info-title">Star Radius:</div> ${exoplanetData.st_rad || 'N/A'}<br>
+                <div class="info-title">Star Radius Error 1:</div> ${exoplanetData.st_raderr1 || 'N/A'}<br>
+                <div class="info-title">Star Radius Error 2:</div> ${exoplanetData.st_raderr2 || 'N/A'}<br>
+                <div class="info-title">Star Radius Limit:</div> ${exoplanetData.st_radlim || 'N/A'}<br>
+                <div class="info-title">Star Mass:</div> ${exoplanetData.st_mass || 'N/A'}<br>
+                <div class="info-title">Star Mass Error 1:</div> ${exoplanetData.st_masserr1 || 'N/A'}<br>
+                <div class="info-title">Star Mass Error 2:</div> ${exoplanetData.st_masserr2 || 'N/A'}<br>
+                <div class="info-title">Star Mass Limit:</div> ${exoplanetData.st_masslim || 'N/A'}<br>
+                <div class="info-title">Metallicity:</div> ${exoplanetData.st_met || 'N/A'}<br>
+                <div class="info-title">Metallicity Error 1:</div> ${exoplanetData.st_meterr1 || 'N/A'}<br>
+                <div class="info-title">Metallicity Error 2:</div> ${exoplanetData.st_meterr2 || 'N/A'}<br>
+                <div class="info-title">Metallicity Limit:</div> ${exoplanetData.st_metlim || 'N/A'}<br>
+                <div class="info-title">Metal Ratio:</div> ${exoplanetData.st_metratio || 'N/A'}<br>
+                <div class="info-title">Logg:</div> ${exoplanetData.st_logg || 'N/A'}<br>
+                <div class="info-title">Logg Error 1:</div> ${exoplanetData.st_loggerr1 || 'N/A'}<br>
+                <div class="info-title">Logg Error 2:</div> ${exoplanetData.st_loggerr2 || 'N/A'}<br>
+                <div class="info-title">Logg Limit:</div> ${exoplanetData.st_logglim || 'N/A'}<br>
+                <div class="info-title">RA String:</div> ${exoplanetData.rastr || 'N/A'}<br>
+                <div class="info-title">Right Ascension:</div> ${exoplanetData.ra || 'N/A'}<br>
+                <div class="info-title">Declination String:</div> ${exoplanetData.decstr || 'N/A'}<br>
+                <div class="info-title">Declination:</div> ${exoplanetData.dec || 'N/A'}<br>
+                <div class="info-title">Distance to Earth:</div> ${exoplanetData.sy_dist || 'N/A'}<br>
+                <div class="info-title">Distance Error 1:</div> ${exoplanetData.sy_disterr1 || 'N/A'}<br>
+                <div class="info-title">Distance Error 2:</div> ${exoplanetData.sy_disterr2 || 'N/A'}<br>
+                <div class="info-title">Visual Magnitude:</div> ${exoplanetData.sy_vmag || 'N/A'}<br>
+                <div class="info-title">Visual Magnitude Error 1:</div> ${exoplanetData.sy_vmagerr1 || 'N/A'}<br>
+                <div class="info-title">Visual Magnitude Error 2:</div> ${exoplanetData.sy_vmagerr2 || 'N/A'}<br>
+                <div class="info-title">K Magnitude:</div> ${exoplanetData.sy_kmag || 'N/A'}<br>
+                <div class="info-title">K Magnitude Error 1:</div> ${exoplanetData.sy_kmagerr1 || 'N/A'}<br>
+                <div class="info-title">K Magnitude Error 2:</div> ${exoplanetData.sy_kmagerr2 || 'N/A'}<br>
+                <div class="info-title">Gaia Magnitude:</div> ${exoplanetData.sy_gaiamag || 'N/A'}<br>
+                <div class="info-title">Gaia Magnitude Error 1:</div> ${exoplanetData.sy_gaiamagerr1 || 'N/A'}<br>
+                <div class="info-title">Gaia Magnitude Error 2:</div> ${exoplanetData.sy_gaiamagerr2 || 'N/A'}<br>
+            `;
+
+            document.getElementById('details').innerHTML = detailsHtml;
+        });
+    });
+</script>

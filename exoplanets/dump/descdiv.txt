@@ -1,0 +1,25 @@
+    <div id="descDiv" class="draggable">
+        <h1>Exoplanets in 3D Space!</h1>
+        <p>
+            The interactive plot provides an approach to the understanding of exoplanet discovery by visualizing the spatial relation of discovered exoplanets.
+            Each point represents an exoplanet according to its relative position in space. 
+            This immersive experience allows to explore exoplanets and gain an understanding how exploration missions allow us to shed light into the cosmos around us.
+        <p>View detailed information on each exoplanet by clicking on individual points, which will then appear in the details tab.</p>
+        <p>Refine the displayed exoplanet data by applying specific criteria in the filter tab.</p>    
+        </p>
+        <h3>Controls</h3>
+        <ul>
+            <li>Left Click and drag to rotate the 3D view.</li>
+            <li>Scroll to zoom in and out.</li>
+            <li>Hold Ctrl or right Click and drag to pan across the plot.</li>
+            <li>Further control options can be found on the top right.</li>
+        </ul>
+        <p>
+            Data courtesy of NASA's Exoplanet Archive. For more information, visit 
+            <a href="https://exoplanetarchive.ipac.caltech.edu/" target="_blank">NASA Exoplanet Archive</a>.
+        </p>
+        <p>
+            This plot was created by Frederick Schindlegger. For questions or more information, feel free to reach out at 
+            <a href="mailto:frederick@satellitesandai.com">frederick@satellitesandai.com</a>.
+        </p>
+    </div>

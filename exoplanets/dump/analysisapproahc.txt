@@ -1,0 +1,363 @@
+For your report, I recommend focusing on a **spatial analysis of the relationship between exoplanet properties and stellar characteristics**—specifically looking at how **stellar metallicity** influences **planetary properties** such as **planet mass, radius, and orbital characteristics**. This analysis could be valuable because it might provide new insights into the **formation of exoplanets** based on the stellar environment and offer a deeper understanding of **planet formation theories**.
+
+### Research Gap and Relevance:
+
+The link between stellar metallicity and planetary properties (mass, radius, and orbital characteristics) is a known phenomenon, but the **spatial distribution** of this relationship is still an emerging field. There’s a gap in understanding how these factors vary **spatially** across the galaxy. Some studies suggest that stars with higher metallicity are more likely to host larger planets, but these relationships have not been thoroughly explored across different regions of the galaxy, especially considering factors like orbital periods and distances.
+
+#### Why is it relevant?
+1. **Stellar Metallicity**: Metal-rich stars tend to have a higher likelihood of forming planets, especially large gas giants. This is an established finding, but the **spatial distribution** of these stars and their planets is under-researched. Are these stars clustered in certain regions of the galaxy?
+  
+2. **Planetary Formation**: The metallicity of a star influences how planets form around it. Understanding this relationship from a spatial perspective could shed light on how different regions of the galaxy may have different planetary systems, which is important for understanding planetary habitability and the potential for life.
+
+3. **Research Gap**: While stellar metallicity has been linked to exoplanet properties, the **geospatial variation** of this relationship is understudied. By integrating **geostatistics and machine learning**, your report could contribute to filling this gap and could offer new insights into how stellar and planetary systems are distributed in space.
+
+### Phenomenon to Focus On:
+- **Spatial Variation in Planetary Properties with Respect to Stellar Metallicity**:  
+  How does **stellar metallicity** influence the **size, mass, and orbit** of exoplanets, and do these patterns vary spatially across the galaxy?
+
+### Geostatistics Approach:
+1. **Spatial Autocorrelation** (Moran's I or Geary’s C):  
+   This will help you explore if **planetary characteristics** (such as radius, mass, or orbital period) cluster based on **stellar metallicity**. For instance, do systems with metal-rich stars have a higher spatial clustering of large planets?
+
+2. **Spatial Regression** (e.g., Geographically Weighted Regression, GWR):  
+   You can apply spatial regression to understand how the relationship between **stellar metallicity** and **planetary properties** changes across different locations in space (e.g., by Right Ascension and Declination). Does the strength of the relationship between metallicity and planet size vary across different regions of the galaxy?
+
+3. **Kriging or Spatial Interpolation**:  
+   Interpolate the spatial distribution of **stellar metallicity** and **planetary properties** to predict these values in unsampled regions of the galaxy. This would give you a continuous spatial field and help you understand the general spatial trends.
+
+### Machine Learning Approach:
+1. **Supervised Learning** (e.g., Random Forest, Gradient Boosting):  
+   You can use machine learning to predict planetary properties (e.g., mass, radius) based on **stellar characteristics**, focusing on **stellar metallicity** as a key feature. The spatial context (Right Ascension and Declination) would be used as input features. This could help reveal non-linear relationships and interactions between stellar and planetary features.
+
+2. **Clustering Analysis** (e.g., K-means, DBSCAN):  
+   Clustering could help identify regions in space where planets with similar characteristics (based on stellar metallicity) tend to group together. This could provide a more nuanced view of planetary system formation across different stellar populations.
+
+3. **Feature Engineering**:  
+   Use features like **stellar spectral type**, **effective temperature**, and **metallicity ratio** to create more robust machine learning models. This can help you understand how **stellar environments** influence **planetary system architectures**.
+
+### Steps for Analysis:
+
+1. **Data Preprocessing**:
+   - Clean and preprocess your data (ensure missing values are handled, especially for errors in measurements or unknown data).
+   - Transform coordinates (RA/DEC) into a Cartesian spatial grid for spatial analysis.
+   - Handle categorical variables like discovery method or facility appropriately in machine learning models.
+
+2. **Geostatistical Analysis**:
+   - Start by calculating **spatial autocorrelation** (Moran's I) to see if there’s clustering in planetary properties based on metallicity.
+   - Apply **spatial regression models** to analyze the relationship between metallicity and exoplanet properties (e.g., planetary mass, radius, orbital parameters).
+
+3. **Machine Learning Analysis**:
+   - Use **supervised models** to predict planetary properties based on stellar features and spatial coordinates.
+   - Perform **unsupervised clustering** to see if certain regions in the galaxy host clusters of similar planetary systems.
+
+4. **Spatial Visualization**:
+   - Visualize the **spatial distribution** of planetary properties in relation to **stellar metallicity**.
+   - Use maps or scatter plots with spatial points to show where certain types of planets tend to be found, and how this correlates with the metallicity of their host stars.
+
+5. **Interpretation**:
+   - Analyze the results to draw conclusions about how stellar environments (e.g., metallicity, star type) influence the characteristics of exoplanets. 
+   - Discuss whether any spatial patterns of these relationships emerge. Do planets with certain properties (e.g., larger planets or those in certain orbital zones) tend to be found in particular regions of the sky?
+
+### Key Columns for Analysis:
+- **Planetary properties**: `pl_rade`, `pl_bmasse`, `pl_orbper`, `pl_orbsmax`
+- **Stellar properties**: `st_met`, `st_spectype`, `st_teff`
+- **Spatial data**: `ra`, `dec` (Right Ascension and Declination)
+
+### Conclusion:
+By focusing on the spatial variation in the relationship between **stellar metallicity** and **planetary properties**, you will provide new insights into how the environment in which stars are born might affect the properties of planets that form around them. Using geostatistics to understand spatial clustering and regression models to predict planetary characteristics based on stellar properties will help advance our understanding of **planetary formation** and **habitability**, while filling a gap in the current research literature on **spatial patterns** in exoplanetary systems.
+
+
+Great! Focusing on a **3D spatial analysis** using **RA (Right Ascension)**, **DEC (Declination)**, and **Distance (sy_dist)** is an excellent choice for studying spatial patterns in your exoplanet dataset. By converting the coordinates into **3D Cartesian coordinates** (X, Y, Z), you can now apply geostatistical methods and machine learning models to analyze spatial patterns across the galaxy in three dimensions. Let's walk through how you can apply your chosen methods (3D spatial autocorrelation, 3D Kriging, etc.) in this context.
+
+### 1. **3D Spatial Autocorrelation (Moran’s I, Geary’s C)**
+Spatial autocorrelation measures whether nearby objects (in space) have similar properties. In the 2D case, Moran’s I or Geary’s C can help determine whether objects (planets) are clustered based on certain properties. When you extend this concept to 3D space, you can examine whether planets with similar characteristics (such as radius, mass, etc.) tend to be located near each other in a 3D space.
+
+#### How to Apply:
+- **Transform Coordinates**: You’ve already converted RA, DEC, and Distance into **3D Cartesian coordinates** (X, Y, Z), so now you have spatial positions in 3D space.
+  
+- **Compute Moran’s I (or Geary’s C)**: 
+  - Compute **3D Moran’s I** using the spatial positions (X, Y, Z) and the exoplanet properties you're interested in (e.g., planet radius, mass, orbital period).
+  - The Moran's I statistic for 3D spatial autocorrelation can be computed as:
+
+    \[
+    I = \frac{N}{\sum_{i,j} w_{ij}} \frac{\sum_{i,j} w_{ij} (Z_i - \bar{Z})(Z_j - \bar{Z})}{\sum_{i} (Z_i - \bar{Z})^2}
+    \]
+    Where:
+    - \(N\) is the total number of observations.
+    - \(w_{ij}\) is the spatial weight between two points.
+    - \(Z_i\) is the property value for the \(i\)-th observation (e.g., planet radius).
+    - \(\bar{Z}\) is the mean value of \(Z\).
+  
+  - This will help you identify whether there is a spatial clustering of certain types of planets (e.g., high mass planets near stars with high metallicity).
+
+- **Interpret Results**: 
+  - If Moran’s I is positive and significant, this indicates spatial clustering.
+  - If Moran’s I is negative, this indicates spatial dispersion.
+
+### 2. **3D Kriging / Spatial Interpolation**
+Kriging is a powerful geostatistical method for spatial interpolation, and extending it to 3D allows you to predict values of properties at unsampled locations in 3D space (in your case, unsampled regions of the galaxy).
+
+#### How to Apply:
+- **Data Preparation**: You need to calculate the **distance matrix** for your 3D coordinates (X, Y, Z) to quantify spatial relationships between points.
+  
+- **Kriging Method**:
+  - Use **3D Kriging** to model the spatial variation in properties like **planetary mass, radius**, or **orbital period** based on the observed data. The method will predict values in areas where you do not have direct observations (e.g., regions of the galaxy where no exoplanets have been detected).
+  
+- **Steps**:
+  - **Create a Semi-Variogram**: The semi-variogram is a key component of Kriging, which describes how the variance of the property of interest changes with distance in 3D space. It will help you understand spatial relationships in the 3D domain.
+  
+  - **Fit the Model**: Fit a variogram model (e.g., spherical, exponential, Gaussian) to the empirical data. This describes how correlation between points diminishes with distance in 3D space.
+  
+  - **Predicting at Unobserved Locations**: Once you’ve fitted the model, you can use **3D Kriging** to predict planetary properties at unsampled points in 3D space. The method will account for the distances between known data points in 3D space (X, Y, Z coordinates).
+
+- **Interpretation**:
+  - You can visualize the spatial distribution of predicted properties (e.g., planet size, mass) across the 3D grid of the galaxy.
+  - This can help you understand where certain types of planets (e.g., gas giants, rocky planets) might be located, based on stellar properties (e.g., metallicity) and their spatial relationships.
+
+### 3. **3D Spatial Regression (Geographically Weighted Regression - GWR)**
+If you're interested in analyzing how stellar properties (e.g., **stellar metallicity, temperature**) influence planetary properties (e.g., **mass, radius**) with a 3D spatial perspective, you can apply **spatial regression models** like **Geographically Weighted Regression (GWR)** in 3D.
+
+#### How to Apply:
+- **Spatial Coordinates**: The independent variables (e.g., stellar metallicity, stellar mass) and dependent variables (e.g., planet radius, orbital period) will be associated with the 3D coordinates (X, Y, Z).
+  
+- **GWR in 3D**: GWR can be extended to 3D to assess how the relationship between stellar properties and planetary characteristics varies across space. The basic form of the GWR model is:
+
+  \[
+  Y_i = \beta_0(x_i, y_i, z_i) + \beta_1(x_i, y_i, z_i) X_1 + \beta_2(x_i, y_i, z_i) X_2 + \cdots + \epsilon_i
+  \]
+
+  Where:
+  - \(Y_i\) is the dependent variable (e.g., planet radius or mass).
+  - \(X_1, X_2, \ldots\) are the independent variables (e.g., stellar metallicity).
+  - \(\beta_0, \beta_1, \beta_2, \ldots\) are the locally estimated regression coefficients that vary with spatial location (i.e., \(x_i, y_i, z_i\)).
+  
+- **Interpretation**: 
+  - The regression coefficients will give you insights into how the influence of stellar metallicity or other factors varies in 3D space. For example, does metallicity have a stronger effect on planet size in some parts of the galaxy than in others?
+
+### 4. **Machine Learning Approaches**
+You can also apply **machine learning techniques** like **Random Forests** or **Gradient Boosting** to learn complex spatial relationships in 3D space.
+
+#### How to Apply:
+- **3D Feature Engineering**: Use **X, Y, Z** coordinates as part of your feature set in machine learning models to predict planetary characteristics based on stellar properties and spatial coordinates.
+  
+- **Modeling**:
+  - Use **Random Forest Regression** or **Gradient Boosting** to predict properties like planet radius or mass, using **stellar metallicity**, **effective temperature**, **spectral type**, and **3D coordinates** as input features.
+  - The model will learn the spatial dependencies and complex relationships between the planetary and stellar properties in 3D space.
+
+- **Interpretation**:
+  - After fitting the model, you can analyze the **feature importance** to understand which spatial features (e.g., specific regions of the galaxy) influence planetary characteristics the most.
+  
+### 5. **Visualization**
+For better understanding and presentation, visualize your results using 3D plots:
+- **3D scatter plots** to show the distribution of planets and their properties.
+- **3D surface plots** or **contour plots** to show interpolated values (from Kriging) of planetary properties.
+- **3D heatmaps** for Moran's I spatial autocorrelation results.
+
+---
+
+### Summary of Steps:
+1. **Coordinate Conversion**: You've already transformed RA, DEC, and distance into 3D Cartesian coordinates (X, Y, Z).
+2. **Geostatistics**: Apply **3D Moran’s I** to check for clustering of exoplanets with similar properties in 3D space. Use **3D Kriging** for interpolation of planetary properties in unsampled regions.
+3. **Spatial Regression**: Use **Geographically Weighted Regression (GWR)** to understand how the relationship between planetary and stellar properties varies in 3D space.
+4. **Machine Learning**: Implement regression models or clustering algorithms to predict planetary properties based on their 3D spatial coordinates and stellar characteristics.
+5. **Visualization**: Visualize the spatial patterns in 3D using scatter plots, surface plots, and heatmaps.
+
+This 3D spatial analysis will offer you a deep understanding of how **spatial distribution** influences **planetary properties** and could reveal new insights into **planet formation processes** and **stellar environments**.
+
+To address the research question: **"How does stellar metallicity influence the size, mass, and orbit of exoplanets, and do these patterns vary spatially across the galaxy?"** using **3D geostatistics** and **machine learning**, you will leverage both spatial relationships and stellar properties to better understand the underlying patterns and their variability across the galaxy.
+
+Let's break this down in the context of your chosen methods (3D geostatistics and machine learning), with a focus on answering the research question and closing any research gaps:
+
+### **Research Question Breakdown**
+
+1. **How does stellar metallicity influence the size, mass, and orbit of exoplanets?**
+   - Stellar metallicity can influence planet formation, with higher metallicity often linked to the formation of larger planets (due to more available material for accretion). This could also affect orbital characteristics such as distance from the star and orbital period.
+   - The goal here is to analyze how stellar metallicity (and other stellar properties) impacts the planetary characteristics (size, mass, orbital period, etc.) using spatial techniques to reveal how this relationship varies across space (the galaxy).
+
+2. **Do these patterns vary spatially across the galaxy?**
+   - The idea here is to determine whether the relationship between stellar metallicity and planetary properties (size, mass, orbit) differs in different regions of the galaxy. Planets in one part of the galaxy might be influenced by different stellar properties than planets in other parts, potentially due to factors like stellar population, galactic environment, or metallicity gradients.
+
+---
+
+### **Steps for Analyzing the Research Question Using 3D Geostatistics and Machine Learning**
+
+### 1. **Data Preprocessing**
+- **Convert Coordinates**: You've already converted RA, DEC, and Distance into 3D Cartesian coordinates (X, Y, Z). This is a critical first step because it allows you to visualize and analyze the spatial distribution of planets within the galaxy.
+  
+- **Key Variables**:
+  - **Dependent Variables**: Planetary properties such as **planet size** (pl_rade), **planet mass** (pl_bmasse), **orbital period** (pl_orbper).
+  - **Independent Variables**: **Stellar metallicity** (st_met), **stellar mass** (st_mass), **stellar temperature** (st_teff), and other stellar properties that might influence planet characteristics.
+
+### 2. **Geostatistical Analysis**
+#### 2.1 **3D Spatial Autocorrelation (Moran’s I)**
+- **Objective**: Examine whether similar types of planets (e.g., with similar sizes, masses, or orbits) are spatially clustered or dispersed in the 3D space of the galaxy.
+  
+- **Application**: 
+  - **Moran's I** can be computed in 3D to assess spatial clustering of exoplanets based on their size, mass, and orbital properties. This will tell you if there are regions in the galaxy where planets with similar properties (e.g., large planets, close orbits) are concentrated.
+  - Additionally, spatial autocorrelation will allow you to assess if exoplanets' properties (size, mass, orbit) are **spatially dependent** on their location in the galaxy, which might indicate that similar planets are found in specific regions.
+  
+- **Interpretation**:
+  - If **Moran's I** for planet mass or radius is significantly positive, it suggests that similar planets (e.g., large mass planets) are clustered together spatially. If negative, it could indicate that dissimilar planets are more evenly distributed.
+
+#### 2.2 **3D Kriging (Spatial Interpolation)**
+- **Objective**: Predict planetary properties (size, mass, orbital period) in unsampled regions of the galaxy, considering spatial relationships and stellar properties.
+  
+- **Application**:
+  - Use **3D Kriging** to estimate planetary properties like mass and radius in regions where no exoplanets have been discovered, but you know the stellar properties (e.g., metallicity). By using **3D Kriging**, you can map how the influence of stellar metallicity on planetary characteristics changes spatially across the galaxy.
+  - **Kriging interpolation** will allow you to fill in gaps in your data, helping you understand the 3D spatial patterns of planets.
+
+- **Interpretation**:
+  - After performing Kriging, you can visualize the spatial variation of planetary properties (e.g., planet mass) and correlate these patterns with **stellar metallicity**. 
+  - For example, you might find that regions with higher stellar metallicity have a higher concentration of larger planets or gas giants, which is consistent with current theories of planet formation.
+  
+### 3. **Spatial Regression (Geographically Weighted Regression, GWR)**
+#### 3.1 **Objective**: Examine how the relationship between **stellar metallicity** (and other stellar properties) and **planetary size, mass, and orbital period** varies across the galaxy in 3D space.
+  
+- **Application**:
+  - Use **GWR** to create a **local regression model** that accounts for spatial variability in the relationship between stellar properties (e.g., metallicity) and planetary characteristics (e.g., radius, mass).
+  - Model the relationship as follows:
+    \[
+    Y_i = \beta_0(x_i, y_i, z_i) + \beta_1(x_i, y_i, z_i) \times \text{stellar metallicity} + \beta_2(x_i, y_i, z_i) \times \text{stellar mass} + \ldots
+    \]
+    Where:
+    - \(Y_i\) is the planetary property (e.g., mass, radius).
+    - The \(\beta\) terms are the coefficients that vary with location in the galaxy, and \(x_i, y_i, z_i\) are the 3D coordinates of the planet.
+
+- **Interpretation**:
+  - By fitting GWR models, you can assess whether the effect of stellar metallicity on planetary properties is stronger or weaker in different parts of the galaxy. 
+  - For example, you might find that **in certain regions** of the galaxy (e.g., near the galactic center), stellar metallicity has a strong positive effect on planetary size, while in other regions, this effect is less pronounced.
+
+### 4. **Machine Learning Approach**
+#### 4.1 **Objective**: Use machine learning models to **predict planetary properties** based on **stellar metallicity** and other stellar characteristics, considering the **3D spatial coordinates** as additional features.
+  
+- **Application**:
+  - **Random Forests** or **Gradient Boosting Machines (GBM)** can be used to predict **planetary mass, radius, and orbital period** based on the stellar properties (metallicity, mass, temperature) and **spatial coordinates** (X, Y, Z).
+  - **Feature Engineering**: Incorporate both **stellar metallicity** and **3D spatial coordinates (X, Y, Z)** as input features in the machine learning model.
+  
+- **Interpretation**:
+  - **Feature Importance**: After training the machine learning model, you can assess the **importance** of stellar metallicity and 3D spatial location in determining planetary characteristics.
+  - This can reveal how important **stellar metallicity** is in determining planetary size, mass, and orbital properties, and whether the importance of metallicity varies spatially across the galaxy.
+
+#### 4.2 **Cluster Analysis (Optional)**:
+- **Objective**: Identify potential **spatial clusters** of exoplanets with similar properties. 
+  - You can apply clustering algorithms such as **K-means clustering** or **DBSCAN** using the **3D coordinates** (X, Y, Z) to find regions in the galaxy where certain types of exoplanets (e.g., large planets, short-period planets) tend to cluster.
+  - This will allow you to see if certain types of planets are more common in specific regions of the galaxy, potentially revealing new insights into the spatial distribution of planetary systems.
+
+---
+
+### **Visualization and Final Interpretation**
+- After performing the 3D spatial autocorrelation, Kriging, GWR, and machine learning, you should visualize the results to draw meaningful conclusions:
+  - **3D scatter plots** of exoplanets colored by different properties (e.g., planet radius, mass, orbital period).
+  - **Heatmaps** showing spatial clustering and patterns in planetary properties.
+  - **3D Kriging surface maps** showing predicted planetary characteristics in unsampled regions of the galaxy.
+  - **GWR results** showing how the relationship between metallicity and planetary properties changes spatially.
+
+### **Conclusion**
+Using **3D geostatistics** and **machine learning**, you will be able to assess not only how **stellar metallicity** influences **planetary size, mass, and orbit**, but also how these relationships vary spatially across the galaxy. This approach allows you to reveal potential spatial patterns, such as:
+- Whether high metallicity regions tend to form larger or more massive planets.
+- If these spatial patterns are influenced by other factors like galactic structure or proximity to the galactic center.
+- How stellar metallicity might influence planet formation across different regions of the galaxy.
+
+This analysis closes a significant gap in exoplanet science by incorporating the **3D spatial perspective** and **stellar metallicity**, offering novel insights into the distribution of exoplanets and their connection to stellar properties.
+
+For the research question **"How does stellar metallicity influence the size, mass, and orbit of exoplanets, and do these patterns vary spatially across the galaxy?"**, here's a detailed breakdown of the variables from your dataset, categorized into **dependent variables**, **independent variables**, and **spatial variables**.
+
+### **1. Dependent Variables (Target Variables)**
+These are the variables you're aiming to explain or predict, based on the independent and spatial variables:
+
+1. **Planet Size**:
+   - **pl_rade**: Planet radius in Earth radii.
+   - **pl_radj**: Planet radius in Jupiter radii.
+
+2. **Planet Mass**:
+   - **pl_bmasse**: Planet mass in Earth masses.
+   - **pl_bmassj**: Planet mass in Jupiter masses.
+
+3. **Planet Orbit (Orbital Characteristics)**:
+   - **pl_orbper**: Orbital period (days).
+   - **pl_orbsmax**: Semi-major axis (AU).
+   - **pl_orbeccen**: Orbital eccentricity.
+   - **pl_insol**: Insolation flux (Earth flux).
+   - **pl_eqt**: Equilibrium temperature (K).
+
+### **2. Independent Variables (Predictor Variables)**
+These are the variables that you believe influence or predict the dependent variables. They are typically **stellar properties** and **planetary properties** related to the star hosting the exoplanet.
+
+1. **Stellar Properties**:
+   - **st_met**: Stellar metallicity.
+   - **st_mass**: Stellar mass (Solar masses).
+   - **st_teff**: Stellar effective temperature (K).
+   - **st_spectype**: Stellar spectral type (categorical, but may have an influence).
+   - **st_rad**: Stellar radius (Solar radii).
+   - **st_meterr1**, **st_meterr2**: Upper and lower errors for metallicity (could be useful for uncertainty analysis).
+
+2. **Other Planetary Properties (might also be included for analysis)**:
+   - **sy_snum**: Number of stars in the system (this can indicate multiple star systems, which may influence exoplanet properties).
+   - **sy_pnum**: Number of planets in the system (could be relevant for understanding the environment a planet exists in).
+
+### **3. Spatial Variables**
+These are the variables you need to consider for **spatial analysis**. Since you're interested in spatially analyzing the distribution of exoplanets in the galaxy and how their properties vary across space, these spatial variables are crucial.
+
+1. **Spatial Coordinates**:
+   - **ra (Right Ascension)**: The longitude of the planet/star in the sky (degrees).
+   - **dec (Declination)**: The latitude of the planet/star in the sky (degrees).
+   - **sy_dist**: System distance (parsecs), which gives you the radial distance of the star system from Earth. This will be critical in defining the spatial distribution of the exoplanets.
+   - **rastr**: Right Ascension (H:M:S) — this is another format of right ascension and may be used for visualizations or additional analyses.
+   - **decstr**: Declination (D:M:S) — another format of declination.
+   
+2. **3D Cartesian Coordinates**:
+   - **cart_x, cart_y, cart_z**: These are the 3D Cartesian coordinates of the planets in space. You’ve already converted the RA, DEC, and distance into this spatial format, and this will allow you to conduct **3D geostatistics** (such as Kriging or spatial autocorrelation) to analyze spatial patterns across the galaxy.
+
+### **3. Other Potential Variables**
+These could be used for further analysis or refinement of the models:
+
+1. **Stellar Parameters**:
+   - **st_logg**: Stellar surface gravity.
+   - **st_metlim**: Stellar metallicity limit flag (could indicate missing or uncertain data, useful for handling missing values).
+   
+2. **Planetary Orbital Characteristics**:
+   - **ttv_flag**: Transit Timing Variations Flag (useful for understanding more dynamic systems, though less directly related to planetary size or mass).
+
+---
+
+### **Summary Table of Variables**
+
+| **Category**            | **Variable**                  | **Description**                                                   |
+|-------------------------|-------------------------------|-------------------------------------------------------------------|
+| **Dependent Variables**  | **pl_rade**                   | Planet radius in Earth radii                                      |
+|                         | **pl_radj**                   | Planet radius in Jupiter radii                                    |
+|                         | **pl_bmasse**                 | Planet mass in Earth masses                                       |
+|                         | **pl_bmassj**                 | Planet mass in Jupiter masses                                     |
+|                         | **pl_orbper**                 | Orbital period (days)                                            |
+|                         | **pl_orbsmax**                | Semi-major axis (AU)                                              |
+|                         | **pl_orbeccen**               | Orbital eccentricity                                              |
+|                         | **pl_insol**                  | Insolation flux (Earth flux)                                      |
+|                         | **pl_eqt**                    | Equilibrium temperature (K)                                      |
+| **Independent Variables**| **st_met**                    | Stellar metallicity                                               |
+|                         | **st_mass**                   | Stellar mass (Solar masses)                                       |
+|                         | **st_teff**                   | Stellar effective temperature (K)                                 |
+|                         | **st_spectype**               | Stellar spectral type (categorical)                               |
+|                         | **st_rad**                    | Stellar radius (Solar radii)                                      |
+|                         | **st_meterr1**, **st_meterr2**| Upper and lower error for stellar metallicity                     |
+|                         | **sy_snum**                   | Number of stars in the system                                     |
+|                         | **sy_pnum**                   | Number of planets in the system                                   |
+| **Spatial Variables**    | **ra**                        | Right Ascension (degrees)                                         |
+|                         | **dec**                       | Declination (degrees)                                            |
+|                         | **sy_dist**                   | System distance (parsecs)                                         |
+|                         | **rastr**                     | Right Ascension (H:M:S)                                           |
+|                         | **decstr**                    | Declination (D:M:S)                                              |
+|                         | **cart_x, cart_y, cart_z**    | 3D Cartesian coordinates (X, Y, Z)                                |
+
+---
+
+### **Application of Spatial Variables to Your Analysis**
+
+- **3D Autocorrelation**: You will use **cart_x, cart_y, cart_z** (or **ra, dec, dist** if you prefer) to assess spatial patterns. For instance, Moran’s I or Getis-Ord’s G statistic can help reveal whether certain planetary characteristics (like size or mass) tend to be clustered or dispersed across specific regions of the galaxy.
+  
+- **Kriging (Spatial Interpolation)**: You can use the **3D Cartesian coordinates (cart_x, cart_y, cart_z)** to interpolate planetary properties like mass and radius in unsampled regions. Stellar metallicity (and other stellar variables) can be used to predict the planetary properties in space.
+
+- **Machine Learning Models**: The spatial coordinates (3D or RA/DEC) will be used as features, alongside stellar properties (like **st_met**), to predict the dependent variables (planet size, mass, and orbital characteristics).
+
+- **Geographically Weighted Regression (GWR)**: This can incorporate both the spatial location (coordinates) and stellar properties (metallicity, mass, etc.) to model how the relationship between stellar properties and planetary characteristics varies in different parts of the galaxy.
+
+By combining these variables and methods, you will be able to analyze how stellar metallicity and other factors influence planetary properties, and how these effects might change across different regions of the galaxy. This will allow you to address the spatial aspect of the question and gain deeper insights into the spatial distribution of exoplanets based on their stellar environments.

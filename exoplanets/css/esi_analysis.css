@@ -1,0 +1,195 @@
+body {
+    margin: 0;
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Prevent horizontal overflow */
+    background-color: black;
+    font-family: 'Space Grotesk', sans-serif;
+    color: rgba(255, 255, 255, 0.8);
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    font-size: 1vw;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align content to the top so scrolling works */
+}
+
+/* Main Content */
+#main {
+    background-color: black; 
+    padding: 5%;
+    max-width: 66vw; /* Instead of a fixed 800px, make it responsive */
+    width: 90%; /* Still prevents overflow on small screens */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 60px; /* Keeps space below title bar */
+}
+/* Title Bar */
+#titleBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: fit-content;
+    height: 50px;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+
+
+#titleBar img {
+    margin-right: 10px;
+}
+
+#titleBar span {
+    margin-right: 15px;
+    color: black;
+    font-size: 14px;
+}
+
+/* Scientific Report Styling */
+.section {
+    margin-bottom: 30px;
+    text-align: justify; /* Blocksatz */
+    padding: 10px;
+    line-height: 1.6;
+}
+
+
+/* Ensure text wraps correctly around images */
+.section::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Links Styling */
+a {
+    color: #1e90ff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+/* Image Container */
+
+/* Image Column for Vertical Stacking */
+.image-column-right {
+    float: right; /* Keeps images aligned right with text wrapping */
+    width: 40%; /* Same as .image-right */
+    margin-left: 15px; /* Adds space between images and text */
+}
+.image-column-left {
+    float: left; /* Keeps images aligned right with text wrapping */
+    width: 30%; /* Same as .image-right */
+    margin-left: 15px; /* Adds space between images and text */
+}
+/* Ensure individual images keep their existing styles */
+.image-container {
+    width: 100%; /* Full width within column */
+    margin-bottom: 0px; /* Space between images */
+}
+
+/* Keep image styling intact */
+.image-container img {
+    width: 100%; /* Ensures images scale properly */
+    border-radius: 8px; /* Keeps your rounded corners */
+}
+
+
+/* Ensure text wraps correctly */
+.section::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+
+
+/* Allow images inside the column to be in a row */
+.image-row {
+    display: flex; /* Enables horizontal layout */
+    gap: 10px; /* Adds spacing between images */
+}
+
+/* Ensure images inside the row don't exceed the column width */
+.image-row .image-container {
+    width: 48%; /* Adjust width so two images fit side by side */
+    margin: 0; /* Remove margin that could break alignment */
+    display: flex;
+    flex-direction: column; /* Keeps image and caption together */
+    align-items: center; /* Centers images */
+}
+/* Image Caption Styling */
+.caption {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    margin-top: 0px;
+}
+
+p {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+/* General Table Styling */
+table {
+    border-collapse: collapse;  /* Removes gaps between table cells */
+    width: 100%;
+    border: 0.5px solid white;
+    border-spacing: 0;  /* Ensures no extra space between rows */
+}
+
+/* Table Headers and Cells */
+th, td {
+    padding: 2px;  /* Reduce padding inside cells */
+    line-height: 1; /* Tightens row spacing */
+    vertical-align: top;  /* Aligns content to the center */
+}
+
+/* Ensure All Inner Elements Do Not Add Extra Space */
+td * {
+    margin: 0;
+    padding: 0;
+}
+
+
+/* Allow tables inside the column to be in a row */
+.table-row {
+    display: flex; /* Enables horizontal layout */
+    gap: 10px; /* Adds spacing between tables */
+    flex-wrap: wrap; /* Ensures tables wrap onto the next line if there's not enough space */
+}
+
+/* Ensure tables inside the row don't exceed the column width */
+.table-row .table-container {
+    width: 48%; /* Adjust width so two tables fit side by side */
+    margin: 0; /* Remove margin that could break alignment */
+    display: flex;
+    flex-direction: column; /* Keeps table and caption together */
+    align-items: center; /* Centers tables */
+    box-sizing: border-box; /* Ensures padding/margin doesn't affect width */
+}
+
+/* Table Styling */
+.table-container table {
+    width: 100%; /* Ensures the table fills the container */
+    border-collapse: collapse; /* Removes space between table cells */
+    margin-bottom: 10px; /* Adds space between the table and its caption */
+}
+
+/* Table Caption Styling */
+.table-caption {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    margin-top: 0px;
+}

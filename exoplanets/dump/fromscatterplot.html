@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Exoplanets!</title>
+    <!-- Load the Google Font: Space Grotesk -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Load the D3 library -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <!-- Load the Plotly library -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* Fullscreen plot as a background */
+        body {
+            margin: 0;
+            overflow: hidden; /* Prevents scrolling */
+            background-color: black;
+            font-family: 'Space Grotesk', sans-serif; /* Apply Space Grotesk */
+            color: black;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        /* Plot div covering the entire viewport */
+        #plotDiv {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0; /* Ensure plot is in the background */
+        }
+
+        /* Description div positioned on top of plot */
+        #descDiv {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            width: 15%;
+            height: auto;
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+            padding: 10px;
+            z-index: 1; /* Ensure it's above plotDiv */
+        }
+
+        /* Details div positioned on top of plot */
+        #detailsDiv {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%); /* Center vertically */
+            width: 15%;
+            height: 50%;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+            padding: 10px;
+            z-index: 1; /* Ensure it's above plotDiv */
+            scrollbar-color: #fff #000;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="descDiv">
+        <img src="exoplanet2.png" width="50" height="50" />
+        <h1>Explore Exoplanets in 3D Space!</h1>
+        <p>
+            This interactive scatter plot visualizes the positions of discovered exoplanets.
+            Each point represents an exoplanet, plotted according to its relative position in 3D space.
+            View detailed information on each exoplanet by clicking on individual points.
+            Details about selected exoplanets will appear in the panel on the right.
+        </p>
+        <h3>Controls</h3>
+        <ul>
+            <li>Left Click and drag to rotate the 3D view.</li>
+            <li>Scroll to zoom in and out.</li>
+            <li>Hold Ctrl or right Click and drag to pan across the plot.</li>
+            <li>Further control options can be found on the top right.</li>
+        </ul>
+        <p>
+            Data courtesy of NASA's Exoplanet Archive. For more information, visit 
+            <a href="https://exoplanetarchive.ipac.caltech.edu/" target="_blank">NASA Exoplanet Archive</a>.
+        </p>
+        <p>
+            This plot was created by Frederick Schindlegger. For questions or more information, feel free to reach out at 
+            <a href="mailto:frederick@satellitesandaicom">your.email@example.com</a>.
+        </p>
+    </div>
+    
+    <div id="plotDiv"></div>
+    <div id="detailsDiv">
+        <h2>Details</h2>
+        <div id="modal-body">Click on a point in the plot to see details here.</div>
+    </div>
+
+    <!-- JavaScript for creating the plot -->
+    <script>
+        const csvFilePath = 'data/exoplanets_cartesian.csv'; // Ensure this path is correct
+        const jsonFilePath = 'columnMappings.json'; // Path to your JSON file with mappings
+        let columnMappings = {}; // This will hold the loaded JSON mappings
+
+        // Function to load JSON mappings
+        function loadColumnMappings() {
+            return fetch(jsonFilePath)
+                .then(response => response.json())
+                .then(data => columnMappings = data)
+                .catch(error => console.error("Error loading JSON mappings:", error));
+        }
+
+        // Function to load data from the CSV file
+        function loadData() {
+            return d3.csv(csvFilePath);
+        }
+
+        // Load mappings and data to create the plot
+        Promise.all([loadColumnMappings(), loadData()])
+            .then(([_, rows]) => {
+                function unpack(rows, key) {
+                    return rows.map(function(row) { return row[key]; });
+                }
+
+                var data = [{
+                    x: unpack(rows, 'cart_x'), 
+                    y: unpack(rows, 'cart_y'), 
+                    z: unpack(rows, 'cart_z'),
+                    mode: 'markers',
+                    marker: {
+                        size: 0.5,
+                        color: 'white',
+                        line: {color: 'white', width: 1, opacity: 0},
+                        opacity: 1
+                    },
+                    text: unpack(rows, 'pl_name'), // Assuming 'pl_name' is the field for names
+                    hoverinfo: 'text',
+                    type: 'scatter3d'
+                }];
+
+                var layout = {
+                    margin: {
+                        l: 0,
+                        r: 0,
+                        b: 0,
+                        t: 0
+                    },
+                    plot_bgcolor:"black",
+                    paper_bgcolor:"black",
+                    scene: {
+                    xaxis: {
+                        title: '',
+                        autorange: true,
+                        showgrid: false,
+                        zeroline: false,
+                        showline: false,
+                        autotick: true,
+                        ticks: '',
+                        showticklabels: false,
+                        showspikes: false
+                    },
+                    yaxis: {
+                        title: '',
+                        autorange: true,
+                        showgrid: false,
+                        zeroline: false,
+                        showline: false,
+                        autotick: true,
+                        ticks: '',
+                        showticklabels: false,
+                        showspikes: false
+                    },
+                    zaxis: {
+                        title: '',
+                        autorange: true,
+                        showgrid: false,
+                        zeroline: false,
+                        showline: false,
+                        autotick: true,
+                        ticks: '',
+                        showticklabels: false,
+                        showspikes: false
+                    }
+                    }
+                };
+
+                // Render the plot
+                Plotly.newPlot('plotDiv', data=data, layout=layout, {displaylogo: false});
+                Plotly.relayout('plotDiv', { 'yaxis.visible': false });
+
+                // Add a click event listener
+                document.getElementById('plotDiv').on('plotly_click', function(eventData) {
+                    // Check if a point was clicked
+                    if (eventData && eventData.points && eventData.points.length > 0) {
+                        const point = eventData.points[0];
+                        const clickedPlName = point.text; // Get the pl_name of the clicked point
+
+                        // Load the data again to find the row that matches the clicked pl_name
+                        loadData().then(function(rows) {
+                            // Find the corresponding row with the clicked pl_name
+                            const matchingRow = rows.find(row => row.pl_name === clickedPlName);
+
+                            // Build the content for the details div
+                            if (matchingRow) {
+                                let detailsContent = '<ul>';
+                                for (const key in matchingRow) {
+                                    const displayName = columnMappings[key] || key; // Use mapped name if available, fallback to key
+                                    detailsContent += `<li><strong>${displayName}:</strong> ${matchingRow[key]}</li>`;
+                                }
+                                detailsContent += '</ul>';
+
+                                // Set the details div content
+                                document.getElementById('modal-body').innerHTML = detailsContent;
+                            } else {
+                                document.getElementById('modal-body').innerHTML = '<p>No details found.</p>';
+                            }
+                        }).catch(function(error) {
+                            console.error("Error loading the CSV file:", error);
+                            document.getElementById('modal-body').innerHTML = '<p>Error loading details.</p>';
+                        });
+                    }
+                });
+            }).catch(function(error) {
+                console.error("Error loading data or mappings:", error);
+            });
+    </script>
+</body>
+</html>

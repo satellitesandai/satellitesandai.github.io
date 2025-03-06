@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Exoplanets</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="descDiv">
+        <img src="images/exoplanet2.png" width="50" height="50" />
+        <h1>Exoplanets in 3D Space!</h1>
+        <p>
+            The interactive scatter plot provides an approach to the understanding of exoplanet discovery by visualizing the spatial relation of discovered exoplanets.
+            Each point represents an exoplanet, plotted according to its relative position in space. 
+            This immersive experience allows the user to explore exoplanets and gain an understanding how exploration missions allow us to shed light into the cosmos around us.
+        <p>View detailed information on each exoplanet by clicking on individual points, which will then appear in the details tab.</p>
+        <p>Refine the displayed exoplanet data by applying specific criteria in the filter tab to focus on points of interest.</p>    
+        </p>
+        <h3>Controls</h3>
+        <ul>
+            <li>Left Click and drag to rotate the 3D view.</li>
+            <li>Scroll to zoom in and out.</li>
+            <li>Hold Ctrl or right Click and drag to pan across the plot.</li>
+            <li>Further control options can be found on the top right.</li>
+        </ul>
+        <p>
+            Data courtesy of NASA's Exoplanet Archive. For more information, visit 
+            <a href="https://exoplanetarchive.ipac.caltech.edu/" target="_blank">NASA Exoplanet Archive</a>.
+        </p>
+        <p>
+            This plot was created by Frederick Schindlegger. For questions or more information, feel free to reach out at 
+            <a href="mailto:frederick@satellitesandai.com">frederick@satellitesandai.com</a>.
+        </p>
+    </div>
+    <div id="loading"></div>
+    <div id="plotDiv"></div>
+
+    <!-- Details Div -->
+    <div id="detailsDiv">
+        <h2>Exoplanet Details</h2>
+        <div id="modal-body">Click on a point in the plot to see details here.</div>
+    </div>
+
+    <!-- Filter Div -->
+    <div id="filterDiv">
+        <h2>Filter Data</h2>
+        <select id="filterColumn">
+            <option value="" disabled selected>Select a column</option>
+        </select>
+
+        <!-- Numerical filters -->
+        <div id="numericalFilters" style="display: none;">
+            <label for="minValue" id="minValueLabel">Min Value (0)</label>
+            <input id="minValue" type="range" min="0" max="100" step="0.1" value="0">
+
+            <label for="maxValue" id="maxValueLabel">Max Value (100)</label>
+            <input id="maxValue" type="range" min="0" max="100" step="0.1" value="100">
+        </div>
+
+        <!-- Categorical filter -->
+        <div id="categoricalFilter" style="display: none;">
+            <label for="categoricalDropdown" id="categoricalLabel">Select Value</label>
+            <select id="categoricalDropdown"></select>
+        </div>
+
+        <button onclick="applyFilter()">Apply Filter</button>
+        <button onclick="resetFilter()">Reset Filter</button>
+    </div>
+
+    <script>
+        document.getElementById('loading').style.display = 'block';
+
+        const csvFilePath = 'data/exoplanets_cartesian.csv'; // Ensure this path is correct
+        const mappingsFilePath = 'data/columnMappings.json'; // Path to your JSON file with mappings
+        let columnMappings = {}; // This will hold the loaded JSON mappings
+        let originalData = []; // Store the original data for filtering
+        const excludedColumns = ["cart_x", "cart_y", "cart_z", "loc_rowid"]; // Excluded Columns from Filter and Details
+
+        // Load JSON mappings
+        async function loadColumnMappings() {
+            const response = await fetch(mappingsFilePath);
+            columnMappings = await response.json();
+        }
+
+        // Load data from CSV
+        async function loadData() {
+            const rows = await d3.csv(csvFilePath);
+            originalData = rows; // Save the original data for filtering
+            return rows;
+        }
+
+        // Populate filter options with all available columns
+        function populateFilterOptions(rows) {
+            const filterColumn = document.getElementById('filterColumn');
+            Object.keys(columnMappings).forEach(key => {
+                if (!excludedColumns.includes(key)) {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = columnMappings[key] || key;
+                    filterColumn.appendChild(option);
+                }
+            });
+
+            // Add event listener for column selection
+            filterColumn.addEventListener('change', function() {
+                updateFilterUI(rows, filterColumn.value);
+            });
+        }
+
+        // Update filter UI based on the selected column's type (numerical or categorical)
+        function updateFilterUI(rows, selectedColumn) {
+            const numericalFilters = document.getElementById('numericalFilters');
+            const categoricalFilter = document.getElementById('categoricalFilter');
+            const categoricalDropdown = document.getElementById('categoricalDropdown');
+
+            if (!selectedColumn) {
+                numericalFilters.style.display = 'none';
+                categoricalFilter.style.display = 'none';
+                return;
+            }
+
+            const values = rows.map(row => row[selectedColumn]);
+            const isNumeric = values.every(value => !isNaN(parseFloat(value)) && isFinite(value));
+
+            if (isNumeric) {
+                numericalFilters.style.display = 'block';
+                categoricalFilter.style.display = 'none';
+
+                const numericValues = values.map(Number).filter(value => !isNaN(value));
+                const minValue = Math.min(...numericValues);
+                const maxValue = Math.max(...numericValues);
+
+                document.getElementById('minValue').min = minValue;
+                document.getElementById('minValue').max = maxValue;
+                document.getElementById('minValue').value = minValue;
+
+                document.getElementById('maxValue').min = minValue;
+                document.getElementById('maxValue').max = maxValue;
+                document.getElementById('maxValue').value = maxValue;
+
+                document.getElementById('minValueLabel').textContent = `Min Value (${minValue})`;
+                document.getElementById('maxValueLabel').textContent = `Max Value (${maxValue})`;
+            } else {
+                numericalFilters.style.display = 'none';
+                categoricalFilter.style.display = 'block';
+
+                const uniqueValues = [...new Set(values)].filter(value => value.trim() !== '');
+                categoricalDropdown.innerHTML = '';
+                uniqueValues.forEach(value => {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = value;
+                    categoricalDropdown.appendChild(option);
+                });
+            }
+        }
+
+        // Apply the filter to the plot
+        function applyFilter() {
+            const filterColumn = document.getElementById('filterColumn').value;
+            if (!filterColumn) {
+                alert("Please select a column to filter.");
+                return;
+            }
+
+            let filteredData = [];
+
+            if (document.getElementById('numericalFilters').style.display === 'block') {
+                const minValue = parseFloat(document.getElementById('minValue').value);
+                const maxValue = parseFloat(document.getElementById('maxValue').value);
+
+                filteredData = originalData.filter(row => {
+                    const value = parseFloat(row[filterColumn]);
+                    return value >= minValue && value <= maxValue && !isNaN(value);
+                });
+            } else if (document.getElementById('categoricalFilter').style.display === 'block') {
+                const selectedValue = document.getElementById('categoricalDropdown').value;
+
+                filteredData = originalData.filter(row => row[filterColumn] === selectedValue);
+            }
+
+            updatePlot(filteredData);
+        }
+
+        // Reset the filter and display the original data
+        function resetFilter() {
+            document.getElementById('filterColumn').value = '';
+            document.getElementById('numericalFilters').style.display = 'none';
+            document.getElementById('categoricalFilter').style.display = 'none';
+            updatePlot(originalData);
+        }
+
+        // Update the Plotly plot
+        function updatePlot(data) {
+            const unpack = (rows, key) => rows.map(row => row[key]);
+
+            const plotData = [{
+                x: unpack(data, 'cart_x'), 
+                y: unpack(data, 'cart_y'), 
+                z: unpack(data, 'cart_z'),
+                mode: 'markers',
+                marker: {
+                    size: 0.2,
+                    color: 'rgb(0,0,255)',
+                },
+                type: 'scatter3d',
+                customdata: data,
+                hovertemplate: "%{customdata[0]}<extra></extra>",
+            }];
+
+            const layout = {
+                margin: {l: 0, r: 0, b: 0, t: 0},
+            };
+
+            Plotly.newPlot('plotDiv', plotData, layout);
+        }
+
+        // Main function to initialize everything
+        async function init() {
+            await loadColumnMappings();
+            const rows = await loadData();
+            populateFilterOptions(rows);
+            updatePlot(rows);
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        init();
+    </script>
+</body>
+</html>

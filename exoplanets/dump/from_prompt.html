@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exoplanet Scatter Plot</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        /* Updated layout for a correct 75% - 25% split */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            display: flex;
+        }
+        #plot-container {
+            width: 75%; /* 75% width for the scatter plot container */
+            height: 100%; /* Full height */
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        #scatter-plot {
+            width: 100%; /* Full width for the plot itself */
+            height: 100%; /* Full height for the plot itself */
+        }
+        #info-container {
+            width: 25%; /* 25% width for the feature panel */
+            padding: 10px;
+            border-left: 1px solid #ccc;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        #info-title {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        #info-content {
+            max-height: 90%;
+        }
+        .info-item {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div id="plot-container">
+        <div id="scatter-plot"></div>
+    </div>
+    <div id="info-container">
+        <div id="info-title">Features</div>
+        <div id="info-content">Select a point to view its details.</div>
+    </div>
+
+    <script>
+        // Load the CSV file and parse it using PapaParse
+        Papa.parse("data/exoplanets.csv", {
+            download: true,
+            header: true,
+            dynamicTyping: true,
+            complete: function(results) {
+                const data = results.data;
+                create3DScatterPlot(data);
+            },
+            error: function(error) {
+                console.error("Error loading CSV file:", error);
+            }
+        });
+
+        function create3DScatterPlot(data) {
+            // Extract data for plotting
+            const xValues = data.map(d => d.cart_x);
+            const yValues = data.map(d => d.cart_y);
+            const zValues = data.map(d => d.cart_z);
+            const names = data.map(d => d.pl_name);
+
+            const trace = {
+                x: xValues,
+                y: yValues,
+                z: zValues,
+                mode: 'markers',
+                marker: {
+                    size: 5,
+                    color: 'blue'
+                },
+                text: names,
+                hoverinfo: 'text',
+                type: 'scatter3d'
+            };
+
+            const layout = {
+                title: '3D Scatter Plot of Exoplanets',
+                scene: {
+                    xaxis: { title: 'cart_x' },
+                    yaxis: { title: 'cart_y' },
+                    zaxis: { title: 'cart_z' }
+                },
+                margin: { l: 0, r: 0, b: 0, t: 30 }
+            };
+
+            Plotly.newPlot('scatter-plot', [trace], layout);
+
+            // Set up click event
+            document.getElementById('scatter-plot').on('plotly_click', function(event) {
+                const pointIndex = event.points[0].pointIndex;
+                displayInfo(data[pointIndex]);
+            });
+        }
+
+        function displayInfo(selectedPoint) {
+            const infoContent = document.getElementById('info-content');
+            infoContent.innerHTML = ""; // Clear previous content
+
+            // Display each attribute in the info panel
+            for (const [key, value] of Object.entries(selectedPoint)) {
+                const infoLine = document.createElement('div');
+                infoLine.className = 'info-item';
+                infoLine.textContent = `${key}: ${value}`;
+                infoContent.appendChild(infoLine);
+            }
+        }
+    </script>
+</body>
+</html>

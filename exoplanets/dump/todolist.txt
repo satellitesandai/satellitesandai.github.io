@@ -1,0 +1,4 @@
+-add ausblenden von windows by click on logo on top left corner
+-add dropdown filter for non numerical values DONE
+-autorotation if plot is loaded
+-add correctly displayed milky way(2d or 3d) 

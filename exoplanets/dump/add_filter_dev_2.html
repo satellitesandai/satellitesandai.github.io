@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Exoplanets</title>
+    <!-- Load the Google Font: Space Grotesk -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Load the Google Font: OCRA -->
+    <link href="https://fonts.googleapis.com/css2?family=OCR-A+Extended&display=swap" rel="stylesheet">
+    <!-- Load the D3 library -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <!-- Load the Plotly library -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Load Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        #filterDiv {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            color: white;
+            border-radius: 8px;
+            z-index: 10;
+            width: 250px;
+        }
+        #filterDiv select,
+        #filterDiv input {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        #sliderRange {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="descDiv">
+        <img src="images/exoplanet2.png" width="50" height="50" />
+        <h1>Exoplanets in 3D Space!</h1>
+        <p>
+            The interactive scatter plot provides a novel approach to the understanding of exoplanet discovery by visualizing the spatial relation of discovered exoplanets.
+            Each point represents an exoplanet, plotted according to its relative position in space. 
+            This immersive experience allows the user to explore exoplanets and gain an understanding how exploration missions allow us to shed light into the cosmos around us.
+            View detailed information on each exoplanet by clicking on individual points, which will then appear in the panel on the right.
+        </p>
+        <h3>Controls</h3>
+        <ul>
+            <li>Left Click and drag to rotate the 3D view.</li>
+            <li>Scroll to zoom in and out.</li>
+            <li>Hold Ctrl or right Click and drag to pan across the plot.</li>
+            <li>Further control options can be found on the top right.</li>
+        </ul>
+        <p>
+            Data courtesy of NASA's Exoplanet Archive. For more information, visit 
+            <a href="https://exoplanetarchive.ipac.caltech.edu/" target="_blank">NASA Exoplanet Archive</a>.
+        </p>
+        <p>
+            This plot was created by Frederick Schindlegger. For questions or more information, feel free to reach out at 
+            <a href="mailto:frederick@satellitesandai.com">frederick@satellitesandai.com</a>.
+        </p>
+    </div>
+    <div id="loading"></div>
+    <div id="plotDiv"></div>
+    <div id="detailsDiv">
+        <h2>Exoplanet Details</h2>
+        <div id="modal-body">Click on a point in the plot to see details here.</div>
+    </div>
+
+    <!-- Filter Div (new) -->
+    <div id="filterDiv">
+        <h3>Filter Variables</h3>
+        <label for="variableSelect">Select Variable:</label>
+        <select id="variableSelect">
+            <option value="">-- Select a variable --</option>
+        </select>
+        <label for="sliderRange">Set Range:</label>
+        <input type="range" id="sliderRange" min="0" max="100" step="0.1">
+        <div style="display: flex; justify-content: space-between;">
+            <span id="sliderMinValue">Min: 0</span>
+            <span id="sliderMaxValue">Max: 100</span>
+        </div>
+        <button id="applyFilterBtn">Apply Filter</button>
+        <button id="resetFilterBtn">Reset Filter</button>
+    </div>
+
+    <script>
+
+        document.getElementById('loading').style.display = 'block';
+
+        const csvFilePath = 'data/exoplanets_cartesian.csv';
+        const jsonFilePath = 'data/columnMappings.json';
+        let columnMappings = {}; // This will hold the loaded JSON mappings
+        let rows = []; // This will hold the CSV rows
+        let originalData = []; // This will store the original data to reset the filter
+
+        // Function to load JSON mappings
+        function loadColumnMappings() {
+            return fetch(jsonFilePath)
+                .then(response => response.json())
+                .then(data => columnMappings = data)
+                .catch(error => console.error("Error loading JSON mappings:", error));
+        }
+
+        // Function to load data from the CSV file
+        function loadData() {
+            return d3.csv(csvFilePath)
+                .then(data => {
+                    rows = data;
+                    originalData = [...data]; // Keep a copy of original data for reset
+                    return rows;
+                })
+                .catch(error => console.error("Error loading CSV file:", error));
+        }
+
+        // Function to update plot based on slider values
+        function updatePlot() {
+            const selectedVariable = document.getElementById("variableSelect").value;
+            const rangeValue = parseFloat(document.getElementById("sliderRange").value);
+            if (selectedVariable && !isNaN(rangeValue)) {
+                const filteredRows = rows.filter(row => {
+                    const value = parseFloat(row[selectedVariable]);
+                    return value <= rangeValue;
+                });
+
+                const x = filteredRows.map(row => row.cart_x);
+                const y = filteredRows.map(row => row.cart_y);
+                const z = filteredRows.map(row => row.cart_z);
+                const text = filteredRows.map(row => row.pl_name);
+
+                const updatedData = [{
+                    x: x,
+                    y: y,
+                    z: z,
+                    mode: 'markers',
+                    marker: {
+                        size: 1,
+                        color: 'white',
+                        line: {color: 'white', width: 1, opacity: 0},
+                        opacity: 0.8
+                    },
+                    text: text,
+                    hoverinfo: 'text',
+                    type: 'scatter3d'
+                }];
+                
+                const layout = {
+                    margin: {
+                        l: 0,
+                        r: 0,
+                        b: 0,
+                        t: 0
+                    },
+                    plot_bgcolor:"black",
+                    paper_bgcolor:"black",
+                    scene: {
+                        xaxis: {
+                            title: '',
+                            autorange: true,
+                            showgrid: false,
+                            zeroline: false,
+                            showline: false,
+                            autotick: true,
+                            ticks: '',
+                            showticklabels: false,
+                            showspikes: false
+                        },
+                        yaxis: {
+                            title: '',
+                            autorange: true,
+                            showgrid: false,
+                            zeroline: false,
+                            showline: false,
+                            autotick: true,
+                            ticks: '',
+                            showticklabels: false,
+                            showspikes: false
+                        },
+                        zaxis: {
+                            title: '',
+                            autorange: true,
+                            showgrid: false,
+                            zeroline: false,
+                            showline: false,
+                            autotick: true,
+                            ticks: '',
+                            showticklabels: false,
+                            showspikes: false
+                        }
+                    }
+                };
+
+                Plotly.react('plotDiv', updatedData, layout);
+            }
+        }
+
+        // Function to populate dropdown with mapped feature names from the columnMappings
+        function populateDropdown() {
+            const selectElement = document.getElementById("variableSelect");
+            selectElement.innerHTML = '';  // Clear any existing options
+
+            // Add default empty option
+            const defaultOption = new Option('-- Select a variable --', '');
+            selectElement.add(defaultOption);
+
+            // Populate the dropdown with the display names from columnMappings
+            Object.keys(columnMappings).forEach(key => {
+                // Add an option for each key with the mapped display name
+                const option = new Option(columnMappings[key], key);
+                selectElement.add(option);
+            });
+        }
+
+        // Function to set min and max values for slider based on selected variable
+        function setSliderRangeForFeature(feature) {
+            if (feature) {
+                const values = rows.map(row => parseFloat(row[feature])).filter(value => !isNaN(value));
+                const min = Math.min(...values);
+                const max = Math.max(...values);
+                const slider = document.getElementById("sliderRange");
+
+                slider.min = min;
+                slider.max = max;
+                slider.value = max; // Set the default value to max
+
+                document.getElementById("sliderMinValue").textContent = "Min: " + min;
+                document.getElementById("sliderMaxValue").textContent = "Max: " + max;
+            }
+        }
+
+        // Add Event Listeners
+        document.getElementById("variableSelect").addEventListener("change", function() {
+            const selectedVariable = this.value;
+            setSliderRangeForFeature(selectedVariable); // Update slider range based on selection
+        });
+
+        // Event listener for slider to update max value text
+        document.getElementById("sliderRange").addEventListener("input", function() {
+            document.getElementById("sliderMaxValue").textContent = "Max: " + this.value;
+            updatePlot();
+        });
+
+        // Event listener for Apply Filter button
+        document.getElementById("applyFilterBtn").addEventListener("click", function() {
+            updatePlot();
+        });
+
+        // Event listener for Reset Filter button
+        document.getElementById("resetFilterBtn").addEventListener("click", function() {
+            rows = [...originalData];
+            document.getElementById("variableSelect").value = '';
+            document.getElementById("sliderRange").value = 100;
+            document.getElementById("sliderMinValue").textContent = "Min: 0";
+            document.getElementById("sliderMaxValue").textContent = "Max: 100";
+            updatePlot();
+        });
+
+        // Initialize everything on page load
+        Promise.all([loadData(), loadColumnMappings()])
+            .then(function() {
+                populateDropdown();
+                updatePlot(); // initial plot render
+                document.getElementById('loading').style.display = 'none';
+            })
+            .catch(function(error) {
+                console.error("Error initializing page:", error);
+            });
+    </script>
+
+</body>
+</html>

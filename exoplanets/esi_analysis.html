@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/exoplanet2.png">
+    <title>Exoplanets Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="css/esi_analysis.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.3/dist/contrib/auto-render.min.js" 
+        onload="renderMathInElement(document.body);"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div id="titleBar">
+        <img src="images/exoplanet2.png" width="30" height="30" alt="Website Icon">
+        <span id="homeOption" onclick="location.href='home.html';" style="cursor: pointer;">Home</span>
+        <span id="exploreOption" onclick="location.href='explore.html';" style="cursor: pointer;">Explore</span>
+        <span id="reportsOption" onclick="location.href='reports.html';" style="cursor: pointer;">Reports</span>
+        <span id="aboutOption" onclick="location.href='about.html';" style="cursor: pointer;">About</span>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main">
+        <h1>In Search of the Next Earth</h1>
+        <h2>
+            Spatial Dependence and Predictive Modeling of Earth-like Exoplanets
+        </h2>
+                <!-- Abstract Section -->
+                <div class="section">
+                    <p>
+                        <p>What if we could map out the very regions of our galaxy that are most likely to host Earth-like exoplanets? 
+                            The search for planets that could sustain life is no longer confined to science fiction—today, it is a rigorous, 
+                            data-driven exploration with the potential to change our understanding of the universe. In this study, we dive deep
+                             into the spatial distribution of Earth-like exoplanets, utilizing the Earth Similarity Index (ESI) to identify patterns
+                              and correlations with characteristics of a planet's host star.</p>
+
+                        <p>Below, you will find an interactive 3D heatmap that visualizes the average regional ESI of discovered exoplanets. 
+                            For a deeper understanding of the analysis and findings, be sure to explore the full report.</p>
+                    </p>
+                </div>
+        <div class="image-column-right" style="width: 100%;">
+            <!-- First image row -->
+            <div class="image-row">
+                <div class="image-container" style="width: 100%";>
+                    <iframe src="esi_heatplot.html" width="100%" height="600px" style="border:none;"></iframe>
+                    <p class="caption">Figure 1: Mean ESI of discovered exopolanets aggregated in cubes of about 300 parsecs.</p>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Introduction  -->
+        <div class="section">
+            <h2>Introduction</h2>
+            <p>The search for Earth-like exoplanets has become a cornerstone of modern astrophysics, driven by the quest to understand the 
+                potential for life beyond our solar system. The ESI quantifies how closely an exoplanet resembles Earth. Understanding the distribution of these planets across the galaxy is essential for identifying 
+                regions more likely to harbor habitable worlds.</p>
+
+            <p>This study investigates the spatial distribution of Earth-like exoplanets, focusing on the role of stellar characteristics, because detecting stellar properties is more feasible than directly detecting planets, as it is inherently difficult to observe 
+                exoplanets due to their small size, distance, and faintness compared to their stars. 
+                By utilizing linear and spatial models, we account 
+                for spatial dependencies and capture clustering patterns in the distribution of Earth-like
+                  exoplanets.</p>
+            
+            <p>The findings offer valuable insights into the factors influencing the occurrence of Earth-like planets across the
+                 galactic disk and address potential biases in exoplanet data. 
+                This report provides a clearer understanding of how stellar properties and spatial patterns shape the likelihood 
+                of finding Earth-like exoplanets, offering guidance for future studies and missions in the search for extraterrestrial life.</p>
+            
+        </div>
+
+        <!-- Background  -->
+        <div class="section">
+            <h2>Background</h2> <p>This section provides an overview of key concepts related to the search for Earth-like exoplanets, including 
+                the Rare Earth Hypothesis, Galactic Habitable Zones, stellar populations, the ESI, and notable exoplanet missions such as Kepler
+                 and TESS.</p>
+            <h3>The Rare Earth Hypothesis</h3> <p>The Rare Earth Hypothesis (REH) proposes that the emergence of complex, Earth-like life is an 
+                exceptionally rare event in the universe [1]. This hypothesis suggests that the conditions required for the development of complex life 
+                are so specific and unique that, despite the vast number of exoplanets, Earth may be an anomaly in the cosmos. The REH highlights 
+                several factors that contribute to the uniqueness of Earth, including its optimal distance from the Sun (the habitable zone), a 
+                stable climate, the presence of a large moon that stabilizes its axial tilt, plate tectonics, a magnetic field, and an abundance 
+                of water. Additionally, the REH posits that a combination of cosmic events, such as asteroid impacts, a stable star like the Sun,
+                 and the right chemical composition, all came together to make Earth sustain life as we know it. While advancements in 
+                 the search for exoplanets and habitable environments continue to provide new insights, the Rare Earth Hypothesis remains a critical
+                  framework for understanding the potential rarity of Earth-like planets and complex life in the universe.</p>
+            <h3>Galactic Habitable Zones</h3>
+            <div class="image-column-right"style="width: 30%;">
+                <!-- First image row -->
+                <div class="image-row">
+                    <div class="image-container" style="width: 100%";>
+                        <img src="images/ghz.png" alt="GHZ">
+                        <p class="caption">Figure 2: Galactic Habitable Zone in spatial (x) and temporal (y) dimension [3].</p>
+                    </div>
+                </div>
+            </div>
+            <p>The Galactic Habitable Zone (GHZ) is the region within the Milky Way most favorable for the formation and survival of complex life.
+                 Introduced by Gonzalez et al. (2001) [2] and expanded by Lineweaver et al. (2004) [3], the GHZ's location is influenced by four factors:</p>
+
+            <p><strong>1. Metallicity</strong> – Higher metallicity allows for the formation of rocky planets, but too much can favor gas giants 
+                that disrupt Earth-like planets.</p>
+        
+            <p><strong>2. Supernova Rate</strong> – Frequent supernovae in the inner galaxy pose a threat to life, while the outer galaxy may 
+                lack enough heavy elements for habitability.</p>
+        
+            <p><strong>3. Time for Evolution</strong> – A stable environment for billions of years is needed for complex life to evolve.</p>
+        
+            <p><strong>4. Star Formation Rate</strong> – More stars increase the chance of habitable planets but also raise the risk of supernovae.</p>
+        
+            <p>Lineweaver et al. (2004) found that the GHZ is an annular region between 7 and 9 kpc from the Galactic center, containing stars that
+                 formed 4 to 8 billion years ago. Over time, the GHZ has expanded as metallicity increased and supernova rates decreased. 
+                 Approximately 75% of stars in the GHZ are older than the Sun, suggesting many habitable planets could be much older than Earth [3].</p>
+        
+            <p>The GHZ is dynamic and evolves, meaning the likelihood of finding habitable exoplanets varies across both space and time. 
+                Understanding the GHZ helps refine estimates of Earth-like exoplanet occurrence and their potential for supporting complex life.</p>
+        <h3>Stellar Populations</h3>        
+            <div class="image-column-right"style="width: 30%;">
+                <!-- First image row -->
+                <div class="image-row">
+                    <div class="image-container" style="width: 100%";>
+                        <img src="images/eso1339e.jpg" alt="Stellar Populations">
+                        <p class="caption">Figure 3: The Milky Way composed of the population I stars (blue) and population II stars (yellow) [6].</p>
+                    </div>
+                </div>
+            </div><p>Walter Baade introduced the concept of stellar populations in the 1940s, classifying stars into <strong>Population I</strong> and <strong>Population II</strong> [4]. A third population, <strong>Population III</strong>, was later added [5].</p>
+
+            <p><strong>Population I stars</strong> are young, metal-rich, and found in the disk of galaxies. They form from gas enriched by previous generations of stars, which enables the formation of rocky planets like Earth.
+            <strong>Population II stars</strong> are older and metal-poor, residing in the halo and globular clusters. These stars formed when the interstellar medium was less enriched, making the formation of rocky planets less likely.
+            <strong>Population III stars</strong> are the first generation, formed from primordial hydrogen and helium, with virtually no metals. These stars are thought to have been very massive and short-lived, enriching the universe with heavier elements.</p>
+            
+        
+            <p>The distribution of these populations reflects the evolution of the galaxy: <strong>Population III</strong> stars were the first to form but have since exploded, while <strong>Population II</strong> stars are found in older galactic regions, and <strong>Population I</strong> stars dominate the younger, active parts of the galaxy.</p>
+        
+            <p>The metallicity of stars impacts <strong>planet formation</strong>. Metal-rich stars like Population I are more likely to form terrestrial planets. In contrast, metal-poor Population II and III stars are less likely to host planets, and if they do, the planets would be very different in composition.</p>
+        
+            <h3>Earth Similarity Index</h3>
+  <p>
+    The ESI quantifies how similar a planet is to Earth, ranging from 0 (no similarity) to 1 (identical). It was introduced by Schulze-Makuch et al. (2011) as a tool for identifying Earth-like exoplanets and compares a planet’s properties to Earth’s [7]. The more parameters used, the more accurate the comparison. 
+  </p>
+
+  <p>
+    The ESI calculation is therefore flexible, allowing for the use of different parameters depending on the available data. In the Planetary Habitability Laboratory catalog, it is typically calculated from radius R and mass M or stellar flux S (depending on which one is known about the planet) [8].
+  </p>
+
+
+    <p>
+      The ESI formula is: 
+      \[
+      \text{ESI} = \sqrt{\left(\frac{S}{S_\oplus} - 1\right)^2 + \left(\frac{R}{R_\oplus} - 1\right)^2}
+      \]
+    </p>
+
+
+  <p>
+    The ESI measures Earth-likeness, but not habitability. Habitability involves more factors, such as atmosphere and the ability to support life. ESI helps identify planets similar to Earth, but does not directly assess their potential to support life.
+  </p>
+
+            <h3>Exoplanet missions: Kepler and TESS</h3>            
+            <div class="image-column-right"style="width: 30%;">
+                <!-- First image row -->
+                <div class="image-row">
+                    <div class="image-container";>
+                        <img src="images/Kepler_Space_Telescope_spacecraft_model_2.png" alt="Kepler">
+                        <p class="caption">Figure 4: Kepler Space Telescope [8].</p>
+                    </div>
+                    <div class="image-container";>
+                        <img src="images/Transiting_Exoplanet_Survey_Satellite_artist_concept_(transparent_background).png" alt="TESS">
+                        <p class="caption">Figure 5: Transiting Exoplanet Survey Satellite (TESS) [9].</p>
+                    </div>
+                </div>
+            </div>
+            <p>The Kepler Space Telescope, launched by NASA in 2009, conducted a comprehensive survey to identify Earth-like exoplanets using the transit method [10]. It monitored over 150,000 stars within the "Kepler Field" (located in Cygnus and Lyra), detecting periodic dips in brightness caused by planets transiting their host stars. This approach led to the discovery of thousands of exoplanets, including many that are Earth-sized and potentially habitable. The field was selected for its dense population of Sun-like stars and minimal atmospheric interference, enabling high-quality data collection.</p>
+
+            <p>In 2018, NASA launched the Transiting Exoplanet Survey Satellite (TESS), which differs from Kepler by surveying nearly the entire sky and focusing on brighter stars within 300 light-years [11]. TESS aims to identify exoplanets, particularly Earth-sized ones, around nearby stars, providing valuable data for further study, including the analysis of exoplanet atmospheres. Both Kepler and TESS have significantly contributed to the understanding of exoplanet populations, with Kepler’s findings informing TESS’s ongoing observations.</p>
+            
+        </div>
+
+
+        <!-- Methodology -->
+        <div class="section">
+            <h2>Methodology</h2>
+            <p>In this section, we introduce the data and methods to carry out the analysis.</p>
+            
+            <h3>Data Source</h3>
+            <p>
+                As the primary data source, we use the <strong>NASA Exoplanet Archive Planetary Systems Composite Dataset</strong> [12], which provides location data for exoplanets along with properties of their host stars.
+                The data is hetegenerous in what institution/mission and method was used to detect the exoplanets.  
+                Additionally, we enrich the NASA data with information from the <strong>Habitable Worlds Catalog</strong> of the <em>Planetary Habitability Laboratory</em> at UPR Arecibo [13]. This dataset includes further computed metrics for exoplanets, such as the <em>ESI</em> and habitable zone extents.
+            </p>
+            
+            <h3>Coordinate System Construction</h3>
+            
+            <!-- Image Column Wrapper -->
+            <div class="image-column-right">
+                <!-- First image row -->
+                <div class="image-row">
+                    <div class="image-container" style="width: 100%";>
+                        <img src="images/A-map-of-all-known-exoplanets.png" alt="Exoplanets Map">
+                        <p class="caption">Figure 6: All known exoplanets as seen from the celestial night sky [14].</p>
+                    </div>
+
+
+                </div>
+                <!-- Second image row -->
+                <div class="image-row">
+                    <div class="image-container" style="width: 100%";>
+                        <img src="images/Celestial, Ecliptic & Galatic Poles-Planes.jpg" alt="Celestial and Galactic Planes">
+                        <p class="caption">Figure 7: Relationship between the celestial and galactic planes [15].</p>
+                    </div>
+                </div>
+                <!-- Second image row -->
+                <div class="image-row">
+                    <div class="image-container" style="width: 100%;">
+                        <img src="images/rotationofcoordiantesystemblack.png" alt="Exoplanet Rotation">
+                        <p class="caption">Figure 8: Exoplanet locations before (red) and after (green) rotation, the galactic disk alings with the x-y-plane.</p>
+                    </div>
+                </div>
+            </div>
+
+            
+            <p>
+                The locations of extraterrestrial objects are typically depicted in a two-dimensional <strong>Equatorial Coordinate System</strong>, showing planetary positions in the Earth's night sky, as depicted in Figure 6. These positions are defined by <em>Right Ascension (α)</em> and <em>Declination (δ)</em> in radians, which are analogous to terrestrial longitude and latitude.  
+                To assess possible spatial interdependencies between exoplanets, we incorporate the distance \( d \) (in parsecs) from the exoplanet to Earth, constructing a three-dimensional Cartesian coordinate system. This allows us to use Euclidean distance measurements for further spatial analysis.  
+                For the location in 3D space \( L(x,y,z) \), the coordinates are computed as follows:</p>
+            
+            <p>\[
+            x = d \cdot \cos(\delta) \cdot \cos(\alpha)
+            \]</p>
+            
+            <p>\[
+            y = d \cdot \cos(\delta) \cdot \sin(\alpha)
+            \]</p>
+            
+            <p>\[
+            z = d \cdot \sin(\delta)
+            \]</p>
+            
+            <p>
+                This transformation results in a 3D representation of the relative locations of exoplanets. Due to the orientation of right ascension and declination, 
+                the <em>x-y plane</em> of this coordinate system corresponds to Earth's celestial plane. However, because exoplanet data extends into a galactic context, 
+                we realign the coordinate system to the <strong>galactic plane of the Milky Way</strong>. 
+                This is achieved by rotating the system first by <strong>63° around the y-axis</strong> and then by <strong>193° around the x-axis</strong>. 
+                Figure 7 illustrates the relationship between the celestial and galactic planes, while Figure 8 shows the exoplanets in the computed 3D space before and after realignment.
+            </p>
+            
+            
+            <h3>Data Preparation</h3>
+            <p>
+                The dataset is prepared using the following steps: First, we perform <strong>feature selection</strong>, choosing relevant attributes for analysis, 
+                including ESI, spatial coordinates (\(x\), \(y\), \(z\)), and host star properties such as temperature, mass, radius, metallicity, age, luminosity, 
+                surface gravity, habitable zone boundaries, snow line, abiogenesis zone, and tidal locking. 
+                Next, we address <strong>handling missing data</strong> by applying <em>complete case analysis</em>, removing entries with at least one missing value. 
+                Imputation methods are avoided due to the difficulty of making valid assumptions about missing data mechanisms in this context. 
+                For <strong>outlier handling</strong>, we assumed that outliers were genuine since the data is validated by NASA.
+                 At this stage, outliers are retained, though they may be reconsidered in a machine learning context to improve generalizability. 
+                 Finally, we perform <strong>data aggregation</strong>, recognizing that some stellar systems contain multiple exoplanets (similar to our Solar System). 
+                 To prevent self-influence in the analysis, we aggregate exoplanet data at the host star level, computing the mean values for each variable.
+            </p>
+
+            
+            <h3>Measuring Spatial Autocorrelation</h3>
+            <p>
+                To assess spatial autocorrelation in the dataset, we employ <strong>Moran’s I test</strong>, a widely used method for detecting clustering patterns in spatial data. The process involves first <strong>constructing the spatial weights matrix</strong> based on the proximity of exoplanets in the three-dimensional (\(x, y, z\)) space, using the Euclidean distance metric to compute distances between points. Next, we apply <strong>inverse distance weighting (IDW)</strong>, assigning weights inversely proportional to the distance between points to ensure that closer exoplanets exert a stronger influence. Finally, we <strong>perform Moran’s I test</strong> on the variable <em>ESI</em> to determine whether similar values cluster in space. A significantly positive Moran’s I value indicates spatial clustering, whereas a negative value suggests dispersion.
+            </p>
+            
+            <h3>Kriging Interpolation</h3>
+            <p>To spatially interpolate the data and estimate the distribution of an exoplanet's ESI value, we apply <strong>ordinary kriging</strong> in two dimensions. Kriging is a <strong>geostatistical interpolation</strong> technique that predicts spatially correlated variables by considering both the <strong>spatial structure</strong> of the data and the <strong>distances between observations</strong>.</p>
+
+            <p>We choose to perform kriging in two dimensions rather than three for two main reasons. First, most of the <strong>galactic matter</strong>, including <strong>stars</strong> and <strong>exoplanets</strong>, is concentrated within the <strong>galactic disk</strong>. Since we have rotated our <strong>coordinate system</strong> so that the galactic disk aligns with the x-y plane, the z-coordinate can be neglected without significant loss of information. This allows us to simplify the analysis while preserving the essential <strong>spatial structure</strong>. Second, kriging has an <strong>exponential computational complexity</strong>. By reducing the <strong>dimensionality</strong> from three to two, we effectively decrease the number of <strong>data points</strong> required for interpolation, which reduces the <strong>computational load</strong> significantly.</p>
+            
+            <p>The kriging process follows these steps: first, we define a regular <strong>2D grid</strong> over the studied region, partitioning the <strong>x-y space</strong> into <strong>100 × 100 parsec bins</strong>. Each data point is then assigned to a corresponding grid cell, and we compute the <strong>mean ESI</strong> for each cell to reduce <strong>noise</strong> and ensure more stable interpolation. Next, we estimate a <strong>variogram</strong> to quantify spatial dependence and fit a <strong>spherical model</strong> to the empirical variogram, which characterizes how <strong>ESI values</strong> correlate over distance. Finally, using the fitted <strong>variogram model</strong>, we apply <strong>ordinary kriging</strong> to predict <strong>ESI values</strong> at unmeasured locations within the grid, generating a continuous spatial distribution estimate.</p>
+             <h3>Linear Regression Model</h3>
+
+            <p>
+                To analyze the relationship between stellar properties and Earth Similarity, we employ a <strong>linear regression model</strong>. We choose the linear regression model because it offers high interpretability, making it easier to understand and explain compared to more complex machine learning methods. The model selection process involves iterative complexity reduction, evaluating goodness-of-fit metrics, and incorporating spatial dependencies. The dataset is split into <strong>80% training data</strong> and <strong>20% test data</strong> for model validation. The dependent variable is <em>ESI</em>, while the initial set of independent variables includes the stellar properties \( S \).
+            </p>
+            
+            <p>
+                The regression model is defined as:
+            </p>
+            
+            <p>
+                $$ \text{ESI}_i = \beta_0 + \sum_{j=1}^{p} \beta_j S_{j,i} + \epsilon_i $$
+            </p>
+            
+            <p>
+                where \( \beta_0 \) is the intercept, \( S_{j,i} \) represents the \( j \)-th stellar property for observation \( i \), \( \beta_j \) are the corresponding regression coefficients, and \( \epsilon_i \) is the error term.
+            </p>
+            
+            <p>
+                Using an iterative approach, we refine the model by removing variables with low statistical significance and eliminating redundant or highly correlated predictors. For each model iteration, we compute three key performance metrics. The <strong>Akaike Information Criterion (AIC)</strong> is used to balance model complexity and goodness of fit. The <strong>Adjusted R²</strong> measures explanatory power while penalizing unnecessary variables. Lastly, the <strong>Root Mean Squared Error (RMSE)</strong> evaluates prediction accuracy on the test set. To determine the final independent variables, we apply the <strong>elbow criterion</strong>, selecting a model with high explanatory power while minimizing complexity.
+            </p>
+            <h3>Adding Spatial dependencies</h3>
+            <p>
+                However, traditional regression models may not fully account for spatial dependencies in residuals. To address this, we extend our analysis by fitting <strong>spatial econometric models</strong>, which explicitly capture spatial autocorrelation. The following table summarizes the spatial econometric models considered in our analysis:
+            </p>
+            
+                        <ul>
+                            <li>
+                                <strong>Spatial Error Model (SEM)</strong>: Accounts for spatial dependence in the error term.
+                            </li>
+                            <li>
+                                <strong>Spatial Durbin Error Model (SDEM)</strong>: Extends SEM by including spatially lagged explanatory variables.
+                            </li>
+                            <li>
+                                <strong>Spatial Lag Model (SLM)</strong>: Models spatial dependence in the dependent variable.
+                            </li>
+                            <li>
+                                <strong>Spatial Durbin Model (SDM)</strong>: Extends SLM by adding spatially lagged explanatory variables.
+                            </li>
+                            <li>
+                                <strong>Spatial Autoregressive Combined Model (SAC)</strong>: Combines SLM and SEM to capture both spatial lag and error dependence.
+                            </li>
+                            <li>
+                                <strong>General Nested Model (GNM)</strong>: Extends SAC by including spatially lagged explanatory variables.
+                            </li>
+                            <li>
+                                <strong>Geographically Weighted Regression (GWR)</strong>: Allows model parameters to vary across geographic space.
+                            </li>
+                        </ul>
+            <p>
+                After estimating these models, we rank them based on their <strong>AIC</strong> scores and select the best-performing model. The chosen model is then analyzed in terms of its predictive accuracy and its effectiveness in capturing spatial dependencies within the dataset.
+            </p>
+            
+            
+
+
+
+        <!-- Results -->
+        <div class="section">
+            <h2>Results</h2>
+
+            <p>In this section, we present the results of the analysis described in the previous chapter.</p>
+
+<h3>Spatial Autocorrelation Patterns</h3>            <!-- Image Column Wrapper -->
+<div class="image-column-right">
+    <!-- First image row -->
+    <div class="image-row">
+        <div class="image-container" style="width: 100%";>
+            <img src="images/moranitest1.png" alt="Moran's I Test Result">
+            <p class="caption">Figure 9: Moran's I Test on spatial autocorrelation of ESI.</p>
+        </div>
+
+
+    </div>
+
+</div>  
+<p>The Moran's I test results indicate a significant spatial autocorrelation in the data. The Moran's I statistic is 0.2357, which suggests a positive spatial autocorrelation, meaning that areas with similar ESI values tend to cluster together. The p-value for this test is less than 2.2e-16, providing strong evidence against the null hypothesis of no spatial autocorrelation. This low p-value reinforces the conclusion that the spatial distribution of Earth similarity values is not random and exhibits significant clustering.</p>
+<h3>Kriging Interpolation Results</h3>
+<p>The resulting map from the Kriging interpolation can be seen in Figure 10. This 2D map visualizes the interpolated ESI across the galactic disk, with Earth at the center of the map (coordinates 0,0). A distinct pattern emerges, showing a cone-like cluster of high ESI values (greater than 0.2), while exoplanets in other directions exhibit lower Earth similarity values (less than 0.1).</p>
+
+<p>This spatial distribution aligns closely with the discoveries made by the Kepler mission, which was specifically designed to identify Earth-like planets. Image 11 shows a subset of exoplanets discovered by the Kepler mission, generated using the Exoplanet Hub Explorer Viewer. This subset further supports the conclusion that Kepler has been highly successful in detecting terrestrial planets, particularly those with Earth-like characteristics, compared to other methods and missions.</p>
+
+            <div class="image-column-right" style="width: 100%;">
+                <!-- Second image row -->
+                <div class="image-row">
+                    <div class="image-container" style="width: 100%";>
+                        <img src="images/krigingblack.png" alt="Kriging Results">
+                        <p class="caption">Figure 10: Kriging Interpolation of Earth similiraty on galactic disk in earth neighbourhood.</p>
+                    </div>
+                    <div class="image-container" style="width: 100%";>
+                        <img src="images/keplerexoplanets.png" alt="Kriging Results">
+                        <p class="caption">Figure 11: Exoplanets discovered by the Kepler Mission.</p>
+                    </div>
+                </div>
+               
+                </div>
+            <h3>Spatial Regression Model</h3>
+            <div class="image-column-right">
+                <div class="image-row">
+                    <div class="image-container" style="width: 100%;">
+                        <img src="images/complex_model_summary.png" alt="Linear Model Summary">
+                        <p class="caption">Figure 12: Summary report of initial linear model.</p>
+                    </div>
+                </div>
+                <div class="image-row">
+                    <div class="image-container" style="width: 100%;font-size: 0.75vw;margin-right: 20px;">
+                        <table style="width: 100%;">
+                            <colgroup>
+                                <col style="width: 2%;">  <!-- Iteration column -->
+                                <col style="width: 45%;">  <!-- Investigated Variables column -->
+                                <col style="width: 30%;">  <!-- Dropped Variables column -->
+                                <col style="width: 20%;">  <!-- Reason for Dropping column -->
+                            </colgroup>
+                            <tr>
+                                <th>Iter- ation</th>
+                                <th>Investigated Variables</th>
+                                <th>Dropped Variables</th>
+                                <th>Reason for Dropping</th>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Temperature, Mass, Radius, Metallicity, Age, Luminosity (log), Surface Gravity (log), Habitable Zone (Opt. Min), Habitable Zone (Opt. Max), Snow Line, Abiogenesis Zone, Tidal Locking</td>
+                                <td>Temperature, Mass, Radius, Surface Gravity (log), Abiogenesis Zone</td>
+                                <td>Less significant variables</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Metallicity, Age, Luminosity (log), Habitable Zone (Opt. Min), Habitable Zone (Opt. Max), Snow Line, Tidal Locking</td>
+                                <td>Tidal Locking</td>
+                                <td>Less significance</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Metallicity, Age, Luminosity (log), Habitable Zone (Opt. Min), Habitable Zone (Opt. Max), Snow Line</td>
+                                <td>Habitable Zone (Opt. Min), Habitable Zone (Opt. Max), Snow Line</td>
+                                <td>Linearly correlated variables</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Metallicity, Age, Luminosity (log)</td>
+                                <td>Age</td>
+                                <td>Less significance</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Metallicity, Luminosity (log)</td>
+                                <td>None</td>
+                                <td>Testing remaining variables</td>
+                            </tr>
+                            <tr>
+                                <td>6</td>
+                                <td>Luminosity (log)</td>
+                                <td>Metallicity</td>
+                                <td>Testing variables individually</td>
+                            </tr>
+                            <tr>
+                                <td>7</td>
+                                <td>Metallicity</td>
+                                <td>Luminosity (log)</td>
+                                <td>Testing variables individually</td>
+                            </tr>
+                        </table>
+                        
+                        <p class="caption">Table 1: Iterations of linear model complexity reduction.</p>
+                    </div>
+                </div>
+                <div class="image-row">
+                    <div class="image-container" style="width: 100%;margin-right: 20px;">
+                        <img src="images/linearmodelgoodness.png" alt="LM Compare">
+                        <p class="caption">Figure 13: Goodness of fit metrics across iterations of complexity reduction of linear model.</p>
+                    </div>
+                </div>
+                <div class="image-row">
+                    <div class="image-container" style="width: 100%;">
+                        <img src="images/simple_model_summary.png" alt="LM final variables">
+                        <p class="caption">Figure 14: Summary report of initial linear model.</p>
+                    </div>
+                </div>
+                <div class="image-row">
+                    <div class="image-container" style="width: 100%;">
+                        <img src="images/pars_lum_log.png" alt="pairsplot">
+                        <p class="caption">Figure 15: Pair scatterplot of variables metallicity and log(luminosity).</p>
+                    </div>
+                </div>
+                <div class="image-row">
+                    <div class="image-container" style="width: 100%;">
+                        <img src="images/spatialmodels AIC.png" alt="Exoplanet Rotation">
+                        <p class="caption">Figure 16: Comparison of linear model and fitted spatial models by AIC.</p>
+                    </div>
+                </div>
+
+            </div>  
+
+            <p>The most complex initial linear model predicts the ESI based on all 12 stellar properties. The complete summary statistics for this model are presented in Figure 12.</p>
+
+            <h4>Iterative Complexity Reduction</h4>
+            <p>Stepwise variable selection was then applied.</p>
+            
+            <p>Variables were dropped based on two criteria: first, if they exhibited lower overall statistical significance (i.e., p-value greater than 0.001), and second, if they were highly correlated with other variables that were more explanatory, as shown in Table 1. Figure 13 illustrates the number of variables, R-squared, AIC, and RMSE for each iteration.</p>
+            
+            <p>Using the elbow criterion, iteration 5 was identified as the optimal model, as it exhibited minimal performance degradation compared to the initial model. Specifically, the final model had an adjusted R-squared of 0.23, an AIC of -4011.8, and an RMSE of 0.12, with only 2 variables retained (as opposed to the original 12 variables), offering a substantial reduction in model complexity without sacrificing predictive accuracy.</p>
+            
+            <h4>Linear Model Evaluation</h4>
+            <p>The final model is composed of two independent variables: metallicity and luminosity. The complete summary statistics for this linear model are presented in Figure 14. A multicollinearity check confirmed that there was no significant correlation between the predictor variables (metallicity and luminosity: 1.002756), suggesting that they are independently contributing to the explanation of ESI. Additionally, a pairs plot (Figure 15) confirmed that there was no apparent relationship or multicollinearity between the two variables, and no discernible outliers were detected that could undermine the generalizability of the model.</p>
+            
+            <h4>Incorporating Spatial Models</h4>
+            <p>As the next step, seven different models incorporating spatial dependencies were fitted and compared based on their goodness 
+                of fit, as measured by the AIC, depicted in Figure 16. The results showed that incorporating spatial dependence improved the model fit, as 
+                all spatial models exhibited a lower AIC value compared to the linear model. The Spatial Durbin Model (SDM) emerged
+                 as the best-performing model, with the lowest AIC value of -5554.3. The SDM accounts for spatial lag and spatial error terms in the dependent variable, allowing the model to capture spatial interactions between neighboring regions. The spatial lag refers to the influence of neighboring regions' dependent variable values on the value of the dependent variable in the current region. In this case, it means that the ESI in a given region may be influenced by the ESI values of neighboring regions, reflecting spatial dependencies across the galactic disk. The spatial error term captures the unobserved spatially correlated factors that affect the dependent variable but are not explicitly included in the model.
+                  In the context of exoplanet Earth similarity, this suggests that the relationship between ESI and the predictor 
+                  variables (metallicity and luminosity) may vary spatially across the galactic disk, indicating spatial clustering of Earth-like exoplanets.</p>
+            
+            <h4>Final Spatial Linear Model Evaluation</h4>
+            <p>Following the model fitting, the residuals of the Spatial Durbin Model (SDM) were checked for spatial autocorrelation. Moran’s I test on the residuals showed no significant spatial autocorrelation (I of 0.0021321671 with p-value above 0.4), indicating that the SDM has appropriately accounted for spatial dependencies. This confirms that the SDM is an effective model for explaining Earth similarity with respect to metallicity and luminosity.</p>
+            
+            <p>Additionally, a Shapiro-Wilk test was used to assess the normality of the residuals, which confirmed that the residuals from the SDM are approximately normally distributed (W of 0.9462 with p-value below 2.2e-16), which is important for validating the assumptions of the model and ensuring the robustness of the statistical inference. A normal distribution of residuals indicates that the model’s predictions are unbiased and that confidence intervals and hypothesis tests are reliable.</p>
+            
+            <p>The final model is represented as follows:</p>
+            <p>
+                $$
+                ESI_i = \alpha + \beta_1 \cdot \text{Metallicity}_i + \beta_2 \cdot \log(\text{Luminosity})_i \\
+                + \rho \cdot W \cdot ESI + \theta_1 \cdot W \cdot \text{Metallicity} \\
+                + \theta_2 \cdot W \cdot \log(\text{Luminosity}) + \epsilon_i
+                $$
+                
+            </p>
+            <p>Where:</p>
+            <ul>
+              <li><strong>ESI</strong>: ESI for observation i</li>
+              <li><strong>Metallicity</strong>: Metallicity for observation i</li>
+              <li><strong>Luminosity</strong>: Luminosity for observation i</li>
+              <li><strong>W</strong>: Spatial weight matrix that captures the spatial dependencies between observations</li>
+              <li><strong>\(\alpha\)</strong>: Intercept term</li>
+              <li><strong>\(\beta_1, \beta_2\)</strong>: Coefficients for metallicity and luminosity, respectively</li>
+              <li><strong>\(\rho\)</strong>: Spatial lag coefficient (captures the influence of the spatially lagged ESI on the current observation)</li>
+              <li><strong>\(\theta_1, \theta_2\)</strong>: Spatial spillover coefficients for metallicity and luminosity, respectively</li>
+              <li><strong>\(\epsilon_i\)</strong>: Error term for observation i</li>
+            </ul>
+        </div>
+
+<!-- Discussion -->
+<div class="section">
+    <h2>Discussion</h2>
+
+<p>The analysis of ESI data reveals a significant <strong>spatial autocorrelation</strong> of <strong>Earth-like exoplanets</strong>, meaning nearby regions in the galaxy tend to have similar ESI values. This suggests that Earth-like planets are clustered rather than randomly distributed. Several factors contribute to this pattern. First, <strong>metallicity</strong> influences the likelihood of rocky planet formation, increasing the probability of Earth-like planets in metal-rich regions. 
+    Second, the distribution of <strong>luminosity</strong>, which varies based on star properties and location, affects ESI by 
+    determining how much energy a planet receives from its star.</p> <p>Interestingly, <strong>Kriging analysis</strong>, which 
+        models spatially correlated data, shows high ESI regions concentrated around the <strong>Kepler Space Telescope</strong> 
+        survey area. This leads to two interpretations: either Kepler observed a region with a naturally higher density of 
+        Earth-like exoplanets, or its <strong>observational bias</strong> influenced the dataset. Kepler's mission design 
+        prioritized detecting Earth-like planets, potentially underrepresenting regions with different planetary characteristics. 
+        This raises concerns about the completeness of its data and whether the observed distribution of exoplanets is skewed by 
+        selection effects.</p> <p>A key issue in <strong>statistical analysis</strong> is <strong>missing data dynamics</strong>, 
+            which affect data interpretation. There are three main types: <strong>Missing Completely at Random (MCAR)</strong>, 
+            <strong>Missing at Random (MAR)</strong>, and <strong>Missing Not at Random (MNAR)</strong>. In Kepler’s dataset, MAR 
+            could apply if missing planets depend on known factors like star type or distance but not on their own properties. 
+            Alternatively, MNAR could occur if planets are missing due to Kepler’s detection limitations, such as planet size or 
+            star brightness. Understanding these patterns is essential for generalizing Kepler’s findings to the broader exoplanet 
+            population.</p> <p>These factors indicate that detecting Earth-like exoplanets depends not only on their actual 
+                abundance but also on <strong>detection mechanisms</strong> and <strong>survey limitations</strong>. Recognizing 
+                these biases is crucial for accurately interpreting exoplanet populations.</p> 
+                    <p>In this context, <strong>linear regression analysis</strong> reveals that <strong>metallicity</strong> 
+                        and <strong>luminosity</strong> independently predict ESI. 
+                        Their independence suggests that both factors must be considered separately when assessing Earth-like 
+                        conditions. A high-metallicity region could contain stars with varied luminosities, leading to different 
+                        planetary environments, just as stars with similar luminosities can have differing metallicities. These 
+                        variations complicate predictions but reinforce the importance of analyzing multiple stellar properties 
+                        when evaluating exoplanet similarity to Earth.</p> </div>
+
+<!-- Conclusion -->
+<div class="section">
+    <h2>Conclusion</h2>
+
+    <p>This study highlights the complex interplay between the ideas of <strong>global habitable zone</strong>, the <strong>Rare 
+        Earth Hypothesis</strong>, and <strong>stellar populations</strong> in shaping the distribution of <strong>Earth-like 
+            exoplanets</strong>. The findings suggest that exoplanet occurrence is not only determined by the local conditions 
+            of a planet but also by the broader <strong>galactic context</strong>, including the <strong>luminosity</strong> 
+            and <strong>metallicity of stars</strong> in specific regions. While our analysis reveals significant insights 
+            into the spatial distribution of Earth-like exoplanets, it also highlights the potential <strong>biases</strong> inherent in current exoplanet datasets, such as those derived from the <strong>Kepler mission</strong>.</p>
+
+    <p>By integrating the properties of <strong>host stars</strong> and the <strong>spatial distribution</strong> of exoplanets, 
+        we can deepen our
+         understanding of the likelihood of finding Earth-like planets across the galaxy. However, it is important to acknowledge 
+         the <strong>limitations</strong> and <strong>biases</strong> of the available data, which may influence the conclusions 
+         drawn from these analyses. 
+        Despite these challenges, the insights gained from this study contribute to our broader understanding of our galaxy’s <strong>structure</strong> and the role <strong>Earth</strong> and its <strong>stellar neighbors</strong> play in the search for extraterrestrial life. 
+        These findings serve as a stepping stone toward refining our methods for identifying exoplanets that may closely 
+        resemble Earth, guiding future missions and studies aimed at exploring other worlds.</p>
+    </div>
+
+        <!-- References -->
+        <div class="section">
+            <h2>References</h2>
+            <ul style="list-style-type:none;">
+                <li>[1] Ellery, A. (2004). Rare Earth–why complex life is uncommon in the universe Peter Ward and Donald Brownlee Copernicus Publishers, New York, USA (2000) 335 pages· ISBN 0-387-95289-6. International Journal of Astrobiology, 3(1), 70-70.
+                </li>
+                <li>[2] Gonzalez, G., Brownlee, D., & Ward, P. (2001). The galactic habitable zone: galactic chemical evolution. Icarus, 152(1), 185-200.
+                    </li>
+                <li>[3] Lineweaver, C. H., Fenner, Y., & Gibson, B. K. (2004). The galactic habitable zone and the age distribution of complex life in the Milky Way. Science, 303(5654), 59-62.
+                </li>
+                <li>[4] Baade, W. (1958). Galaxies and their stellar populations.(A review of the present state of affairs). In Ricerche Astronomiche, Vol. 5, Specola Vaticana, Proceedings of a Conference at Vatican Observatory, Castel Gandolfo, May 20-28, 1957, Amsterdam: North-Holland, and New York: Interscience, 1958, edited by DJK O'Connell., p. 3 (Vol. 5, p. 3).
+                </li>
+                <li>[5] Klessen, R. S., & Glover, S. C. (2023). The first stars: formation, properties, and impact. Annual Review of Astronomy and Astrophysics, 61(1), 65-130.
+                </li>
+                <li>[6] https://www.eso.org/public/images/eso1339e/</li>
+                <li>[7] Schulze-Makuch, D., Méndez, A., Fairén, A. G., Von Paris, P., Turse, C., Boyer, G., ... & Irwin, L. N. (2011). A two-tiered approach to assessing the habitability of exoplanets. Astrobiology, 11(10), 1041-1052.</li>
+                <li>[8] https://phl.upr.edu/projects/earth-similarity-index-esi</li>
+                <li>[8] https://upload.wikimedia.org/wikipedia/commons/4/45/Kepler_Space_Telescope_spacecraft_model_2.png
+                    </li>
+                <li>[9] https://upload.wikimedia.org/wikipedia/commons/c/c2/Transiting_Exoplanet_Survey_Satellite_artist_concept_%28transparent_background%29.png </li>
+
+                <li>[10]https://science.nasa.gov/mission/kepler/</li> 
+                <li>[11]https://science-nasa-gov.translate.goog/mission/tess/?_x_tr_sl=en&_x_tr_tl=de&_x_tr_hl=de&_x_tr_pto=sc</li> 
+                <li>[12]Akeson, R. L., Chen, X., Ciardi, D., Crane, M., Good, J., Harbut, M., ... & Zhang, A. (2013). The NASA exoplanet archive: data and tools for exoplanet research. Publications of the Astronomical Society of the Pacific, 125(930), 989.</a>  
+                </li> 
+                <li>[13] The Planetary Habitability Laboratory @ UPR Arecibo (phl.upra.edu)</li>
+                <li>[14] Lund, M. B. (2016). Astrology in the Era of Exoplanets. arXiv preprint arXiv:1603.09496.</li>
+                <li>[15] https://www.physicsforums.com/attachments/celestial-ecliptic-galatic-poles-planes-29sep2016nojs-jpg.107280/</li>
+                <li></li>
+
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+
+                <li></li>
+                <li></li>
+                <li></li>
+
+                <li></li>
+                <li></li>
+                
+              </ul>  
+        </div>
+    </div>
+</body>
+</html>

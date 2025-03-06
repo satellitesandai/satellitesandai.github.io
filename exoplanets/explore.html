@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/exoplanet2.png">
+    <title>Exoplanets Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="css/explore.css">
+
+</head>
+<body>
+    <div id="titleBar">
+        <img src="images/exoplanet2.png" width="30" height="30" alt="Website Icon">
+        <span id="homeOption" onclick="location.href='home.html';" style="cursor: pointer;">Home</span>
+        <span id="exploreOption"><b>Explore</b></span>
+        <span id="reportsOption" onclick="location.href='reports.html';" style="cursor: pointer;">Reports</span>
+        <span id="aboutOption" onclick="location.href='about.html';" style="cursor: pointer;">About</span>
+    </div>
+
+    <div id="loading"></div>
+    <div id="plotDiv"></div>
+    <div id="detailsDiv" class="draggable">
+        <h2>Exoplanet Details</h2>
+        <div id="modal-body">Click on a point in the plot to see details here.</div>
+    </div>
+    <div id="filterDiv" class="draggable">
+        <h2>Filter Data</h2>
+        <select id="filterColumn">
+            <option value="" disabled selected>Select a column</option>
+        </select>
+        <label for="minValue" id="minValueLabel" style="display:none;">Min Value (0)</label>
+        <input id="minValue" type="range" min="0" max="100" step="0.1" value="0" style="display:none;">
+        <label for="maxValue" id="maxValueLabel" style="display:none;">Max Value (100)</label>
+        <input id="maxValue" type="range" min="0" max="100" step="0.1" value="100" style="display:none;">
+        
+        <button onclick="resetFilter()">Reset Filter</button>
+    </div>
+    <div id="mobileWarning" 
+            style="display: none; text-align: center; padding: 20px; background-color: #ffcccc; color: #333; font-size: 18px;">
+        <p>Sorry, this webpage is only accessible on a desktop browser.</p>
+    </div>
+    
+    <script src="js/explore.js"></script>
+
+</body>
+</html>

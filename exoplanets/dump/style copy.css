@@ -1,0 +1,234 @@
+@font-face {
+    font-family: 'OCR-A';
+    src: url('/fonts/ocr-a-extended.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+/* Fullscreen plot as a background */
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: black;
+    /*font-family: 'OCR-A', sans-serif;*/
+    font-family: 'Space Grotesk', sans-serif;
+    color: black;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    font-size: 13px;
+}
+
+/* Plot div covering the entire viewport */
+#plotDiv {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0; /* Ensure plot is in the background */
+}
+
+/* Description div positioned on top of plot */
+#descDiv {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    width: 15%;
+    height: 90%;
+    background-color: rgba(255, 255, 255, 0.8); 
+    padding: 10px;
+    z-index: 1; /* Ensure it's above plotDiv */
+}
+
+/* Details div positioned on top of plot */
+#detailsDiv {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: auto;
+    height: 50%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: rgba(255, 255, 255, 0.8); 
+    padding: 10px;
+    z-index: 1; /* Ensure it's above plotDiv */
+    scrollbar-color: #CCCCCC #000;
+
+}
+
+#loading {
+    display: none; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Ensure it's above plotDiv */
+    background-image: url('../images/loading2.gif'); 
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 220px 160px;
+}
+
+
+/* Filter window container */
+#filterDiv {
+    position: fixed;
+    top: 30px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.8); 
+    color: black; 
+    padding: 20px;
+    max-width: 320px;
+    z-index: 1000;
+}
+
+/* Reset for the slider track */
+#filterDiv input[type="range"] {
+    -webkit-appearance: none; /* Remove WebKit default styles */
+    appearance: none; /* Remove default styles in all browsers */
+    width: 100%;
+    height: 8px;
+    background: black; /* Black track color */
+    border: none; /* Remove any borders */
+    outline: none; /* Remove focus outlines */
+}
+
+/* Slider thumb styling for WebKit (Chrome, Edge) */
+#filterDiv input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Remove WebKit default thumb styling */
+    width: 20px;
+    height: 20px;
+    border-radius: 50%; /* Ensure no rounding of the thumb */
+    background: black; /* Enforce black thumb */
+    box-shadow: none; /* Remove unwanted shadows */
+    cursor: pointer;
+}
+
+/* Hover styling */
+#filterDiv input[type="range"]::-webkit-slider-thumb:hover {
+    background: black; /* Ensure consistent hover behavior */
+}
+
+/* Slider thumb styling for Firefox */
+#filterDiv input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%; /* No rounding */
+    background: black; /* Black thumb */
+    box-shadow: none;
+    cursor: pointer;
+}
+
+/* Focused slider behavior */
+#filterDiv input[type="range"]:focus::-webkit-slider-thumb,
+#filterDiv input[type="range"]:focus::-moz-range-thumb {
+    background: black;
+}
+
+
+/* Dropdown select styling */
+#filterDiv select {
+    -webkit-appearance: none; /* Remove WebKit default styles */
+    -moz-appearance: none; /* Remove Firefox default styles */
+    appearance: none; /* Remove default styles */
+    border: 1px solid black; /* Enforce black border */
+    border-radius: 0; /* Remove rounding */
+    background-color: #CCCCCC; /* Gray background */
+    color: black; /* Black text */
+    width: 100%; /* Full width */
+    padding: 8px; /* Padding for inner content */
+    cursor: pointer; /* Ensure pointer cursor */
+    line-height: 1.5; /* Consistent line height */
+}
+
+/* Hover state for dropdown */
+#filterDiv select:hover {
+    background-color: #BBBBBB; /* Darker gray on hover */
+}
+
+/* Focus styling */
+#filterDiv select:focus {
+    outline: 2px solid black; /* Consistent focus outline */
+    background-color: #CCCCCC; /* Retain background */
+}
+
+/* General Scrollbar Styling */
+#detailsDiv, #filterDiv select {
+    scrollbar-width: thin; /* Firefox: Thin scrollbar */
+    scrollbar-color: #CCCCCC #000; /* Thumb (gray) and track (black) */
+}
+
+/* WebKit-based browsers (Chrome, Edge, Safari) */
+#detailsDiv::-webkit-scrollbar, #filterDiv select::-webkit-scrollbar {
+    width: 8px; /* Scrollbar width */
+    height: 8px; /* Horizontal scrollbar height, if applicable */
+}
+
+#detailsDiv::-webkit-scrollbar-thumb, #filterDiv select::-webkit-scrollbar-thumb {
+    background-color: #CCCCCC; /* Thumb color */
+    border-radius: 10px; /* Rounded thumb */
+}
+
+#detailsDiv::-webkit-scrollbar-thumb:hover, #filterDiv select::-webkit-scrollbar-thumb:hover {
+    background-color: #BBBBBB; /* Slightly darker thumb on hover */
+}
+
+#detailsDiv::-webkit-scrollbar-track, #filterDiv select::-webkit-scrollbar-track {
+    background-color: #000; /* Scrollbar track color */
+    border-radius: 10px; /* Rounded track for aesthetics */
+}
+
+
+/* Reset button styling */
+#filterDiv button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: black; 
+    color: #CCCCCC; 
+    border: none;
+    /*border-radius: 5px;*/
+    cursor: pointer;
+}
+
+#filterDiv button:hover {
+    background-color: #333333; /* Darker button color on hover */
+}
+
+
+/* Adjust margin of all headings and paragraphs inside these containers */
+#filterDiv h2,
+#detailsDiv h2 {
+    margin-top: 0; 
+}
+
+
+#detailsDiv ul {
+    list-style-type: none; 
+    padding: 0; 
+    margin: 0; 
+}
+
+#detailsDiv li {
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 5px; 
+    color: #000; 
+}
+#detailsDiv li strong {
+    margin-right: 10px; 
+}
+
+#mobileWarning {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+    transform: translateY(-50%); /* Center vertically */
+    background-color: rgba(255, 255, 255, 0.8); 
+    color: white;
+}

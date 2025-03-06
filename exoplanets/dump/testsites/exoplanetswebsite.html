@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exoplanets 3D Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        #exoplanet-plot {
+            width: 100%;
+            height: 80vh;
+        }
+        /* Popup styling */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            display: none;
+        }
+        .popup-close {
+            cursor: pointer;
+            color: red;
+            font-weight: bold;
+            float: right;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Exoplanets 3D Visualization</h1>
+<div id="exoplanet-plot"></div>
+<div id="popup" class="popup">
+    <span class="popup-close" onclick="closePopup()">×</span>
+    <div id="popup-content"></div>
+</div>
+
+<script>
+// Function to parse CSV data
+async function fetchData() {
+    const response = await fetch('PSCompPars_2024.10.20_04.01.56.csv');
+    const data = await response.text();
+
+    // Parse CSV data into an array of objects
+    const rows = data.split('\n').slice(1); // Skip header
+    const exoplanets = rows.map(row => {
+        const cols = row.split(',');
+        return {
+            loc_rowid: cols[0], pl_name: cols[1], hostname: cols[2], sy_snum: cols[3], sy_pnum: cols[4],
+            discoverymethod: cols[5], disc_year: cols[6], disc_facility: cols[7], pl_controv_flag: cols[8],
+            pl_orbper: cols[9], pl_orbpererr1: cols[10], pl_orbpererr2: cols[11], pl_orbperlim: cols[12],
+            pl_orbsmax: cols[13], pl_orbsmaxerr1: cols[14], pl_orbsmaxerr2: cols[15], pl_orbsmaxlim: cols[16],
+            pl_rade: cols[17], pl_radeerr1: cols[18], pl_radeerr2: cols[19], pl_radelim: cols[20],
+            pl_radj: cols[21], pl_radjerr1: cols[22], pl_radjerr2: cols[23], pl_radjlim: cols[24],
+            pl_bmasse: cols[25], pl_bmasseerr1: cols[26], pl_bmasseerr2: cols[27], pl_bmasselim: cols[28],
+            pl_bmassj: cols[29], pl_bmassjerr1: cols[30], pl_bmassjerr2: cols[31], pl_bmassjlim: cols[32],
+            pl_bmassprov: cols[33], pl_orbeccen: cols[34], pl_orbeccenerr1: cols[35], pl_orbeccenerr2: cols[36],
+            pl_orbeccenlim: cols[37], pl_insol: cols[38], pl_insolerr1: cols[39], pl_insolerr2: cols[40],
+            pl_insollim: cols[41], pl_eqt: cols[42], pl_eqterr1: cols[43], pl_eqterr2: cols[44], pl_eqtlim: cols[45],
+            ttv_flag: cols[46], st_spectype: cols[47], st_teff: cols[48], st_tefferr1: cols[49], st_tefferr2: cols[50],
+            st_tefflim: cols[51], st_rad: cols[52], st_raderr1: cols[53], st_raderr2: cols[54], st_radlim: cols[55],
+            st_mass: cols[56], st_masserr1: cols[57], st_masserr2: cols[58], st_masslim: cols[59],
+            st_met: cols[60], st_meterr1: cols[61], st_meterr2: cols[62], st_metlim: cols[63], st_metratio: cols[64],
+            st_logg: cols[65], st_loggerr1: cols[66], st_loggerr2: cols[67], st_logglim: cols[68],
+            ra: parseFloat(cols[69]), dec: parseFloat(cols[71]), sy_dist: parseFloat(cols[73])
+        };
+    }).filter(ep => ep.pl_name); // Filter out empty rows
+
+    return exoplanets;
+}
+
+// Convert Right Ascension, Declination, and Distance to Cartesian coordinates
+function convertToCartesian(exoplanets) {
+    return exoplanets.map(ep => {
+        const ra_rad = ep.ra * (Math.PI / 180);
+        const dec_rad = ep.dec * (Math.PI / 180);
+        return {
+            ...ep,
+            x: ep.sy_dist * Math.cos(dec_rad) * Math.cos(ra_rad),
+            y: ep.sy_dist * Math.cos(dec_rad) * Math.sin(ra_rad),
+            z: ep.sy_dist * Math.sin(dec_rad),
+        };
+    });
+}
+
+// Create the 3D plot
+async function createPlot() {
+    const exoplanets = await fetchData();
+    const data = convertToCartesian(exoplanets);
+
+    const trace = {
+        x: data.map(ep => ep.x),
+        y: data.map(ep => ep.y),
+        z: data.map(ep => ep.z),
+        mode: 'markers',
+        marker: { size: 5, color: 'white', opacity: 0.8 },
+        text: data.map(ep => ep.pl_name),
+        type: 'scatter3d',
+        hoverinfo: 'none' // Remove hover to make the environment "space-like"
+    };
+
+    const layout = {
+        scene: {
+            xaxis: { visible: false },
+            yaxis: { visible: false },
+            zaxis: { visible: false }
+        },
+        plot_bgcolor: 'black',
+        paper_bgcolor: 'black',
+        showlegend: false
+    };
+
+    Plotly.newPlot('exoplanet-plot', [trace], layout);
+
+    // Handle click events for displaying detailed info
+    const popup = document.getElementById('popup');
+    const popupContent = document.getElementById('popup-content');
+
+    document.getElementById('exoplanet-plot').on('plotly_click', function(data) {
+        if (data.points.length > 0) {
+            const pointIndex = data.points[0].pointIndex;
+            const exoplanet = exoplanets[pointIndex];
+            const infoHTML = Object.entries(exoplanet).map(([key, value]) =>
+                `<strong>${key}:</strong> ${value}`
+            ).join('<br>');
+            popupContent.innerHTML = infoHTML;
+            popup.style.display = 'block';
+        }
+    });
+}
+
+// Close popup function
+function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+}
+
+// Initialize the plot
+createPlot();
+</script>
+
+</body>
+</html>

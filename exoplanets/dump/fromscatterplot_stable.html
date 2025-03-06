@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Scatter Plot with Plotly</title>
+    <!-- Load the D3 library -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <!-- Load the Plotly library -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: space-between;
+        }
+        #plotDiv {
+            width: 75%;
+            height: 600px;
+        }
+        #detailsDiv {
+            width: 20%;
+            padding: 20px;
+            border: 1px solid #ccc;
+            height: 600px;
+            overflow-y: auto;
+        }
+        h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="plotDiv"></div>
+    <div id="detailsDiv">
+        <h2>Details</h2>
+        <div id="modal-body">Click on a point in the plot to see details here.</div>
+    </div>
+
+    <!-- JavaScript for creating the plot -->
+    <script>
+        const csvFilePath = 'data/exoplanets_cartesian.csv'; // Ensure this path is correct
+
+        // Function to load data from the CSV file
+        function loadData() {
+            return d3.csv(csvFilePath);
+        }
+
+        // Load data and create 3D scatter plot
+        loadData().then(function(rows) {
+            function unpack(rows, key) {
+                return rows.map(function(row) { return row[key]; });
+            }
+
+            var trace1 = {
+                x: unpack(rows, 'cart_x'), 
+                y: unpack(rows, 'cart_y'), 
+                z: unpack(rows, 'cart_z'),
+                mode: 'markers',
+                marker: {
+                    size: 5,
+                    line: {
+                        color: 'rgba(217, 217, 217, 0.14)',
+                        width: 0.5
+                    },
+                    opacity: 0.8
+                },
+                text: unpack(rows, 'pl_name'), // Assuming 'pl_name' is the field for names
+                hoverinfo: 'text',
+                type: 'scatter3d'
+            };
+
+            var data = [trace1];
+            var layout = {
+                margin: {
+                    l: 0,
+                    r: 0,
+                    b: 0,
+                    t: 0
+                }
+            };
+
+            // Render the plot
+            Plotly.newPlot('plotDiv', data, layout, {displaylogo: false});
+
+            // Add a click event listener
+            document.getElementById('plotDiv').on('plotly_click', function(eventData) {
+                // Check if a point was clicked
+                if (eventData && eventData.points && eventData.points.length > 0) {
+                    const point = eventData.points[0];
+                    const clickedPlName = point.text; // Get the pl_name of the clicked point
+
+                    // Load the data again to find the row that matches the clicked pl_name
+                    loadData().then(function(rows) {
+                        // Find the corresponding row with the clicked pl_name
+                        const matchingRow = rows.find(row => row.pl_name === clickedPlName);
+
+                        // Build the content for the details div
+                        if (matchingRow) {
+                            let detailsContent = '<ul>';
+                            for (const key in matchingRow) {
+                                detailsContent += `<li><strong>${key}:</strong> ${matchingRow[key]}</li>`;
+                            }
+                            detailsContent += '</ul>';
+
+                            // Set the details div content
+                            document.getElementById('modal-body').innerHTML = detailsContent;
+                        } else {
+                            document.getElementById('modal-body').innerHTML = '<p>No details found.</p>';
+                        }
+                    }).catch(function(error) {
+                        console.error("Error loading the CSV file:", error);
+                        document.getElementById('modal-body').innerHTML = '<p>Error loading details.</p>';
+                    });
+                }
+            });
+        }).catch(function(error) {
+            console.error("Error loading the CSV file:", error);
+        });
+    </script>
+</body>
+</html>
